@@ -1,5 +1,5 @@
 {
- "version": "0.0.1",
+ "version": "0.0.2",
  "name": "@stroeer/stroeer-videoplayer-default-ui",
  "description": "Ströer Videoplayer Default UI",
  "main": "dist/StroeerVideoplayer-default-ui.cjs.js",
@@ -7,10 +7,12 @@
  "files": [
   "dist"
  ],
+ "types": "dist/types/UI.d.ts",
  "scripts": {
   "build": "npm-run-all build:*",
   "build:js": "rollup -c",
   "build:css": "sass src/UI.scss ./dist/StroeerVideoplayer-default-ui.css",
+  "build:types": "rm -rf dist/types && npx tsc && mv dist/src dist/types",
   "watch": "npm-run-all watch:*",
   "watch:js": "rollup -c -w",
   "watch:css": "sass --watch src/UI.scss ./dist/StroeerVideoplayer-default-ui.css",
@@ -54,5 +56,6 @@
   "ts-standard": "^10.0.0",
   "tslib": "^2.1.0",
   "typescript": "^4.1.3"
- }
+ },
+ "dependencies": {}
 }
