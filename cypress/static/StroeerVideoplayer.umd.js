@@ -291,4 +291,4 @@
     return StrooerVideoplayer;
 
 })));
-//# sourceMappingURL=StroeerVideoplayer.js.map
+//# sourceMappingURL=StroeerVideoplayer.umd.js.map

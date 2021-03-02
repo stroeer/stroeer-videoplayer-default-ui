@@ -21,12 +21,13 @@
 		</video>
 	</div>
 
-	<script src="StroeerVideoplayer.js"></script>
+	<script src="StroeerVideoplayer.umd.js"></script>
 	<link rel="stylesheet" href="StroeerVideoplayer.css" />
 
 	<script src="../../dist/StroeerVideoplayer-default-ui.umd.js"></script>
 	<link rel="stylesheet" href="../../dist/StroeerVideoplayer-default-ui.css" />
 	<script>
+		StroeerVideoplayer.registerUI(StroeerVideoplayerDefaultUI);
 		const video = document.getElementById("myvideo");
 		video.addEventListener('error', function() {
 			console.log('error', this.error.code, this.error.message)
