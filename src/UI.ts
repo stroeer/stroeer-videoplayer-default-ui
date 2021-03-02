@@ -219,9 +219,4 @@ class UI {
 
 const StroeerVideoplayerDefaultUI = new UI()
 
-declare var StroeerVideoplayer: any;
-if (typeof StroeerVideoplayer !== 'undefined') {
-  StroeerVideoplayer.registerUI(StroeerVideoplayerDefaultUI)
-}
-
 export default StroeerVideoplayerDefaultUI

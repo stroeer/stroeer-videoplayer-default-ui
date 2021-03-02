@@ -2,7 +2,8 @@
  "version": "0.0.1",
  "name": "@stroeer/stroeer-videoplayer-default-ui",
  "description": "Ströer Videoplayer Default UI",
- "main": "dist/StroeerVideoplayer-default-ui.js",
+ "main": "dist/StroeerVideoplayer-default-ui.cjs.js",
+ "module": "dist/StroeerVideoplayer-default-ui.esm.js",
  "files": [
   "dist"
  ],
@@ -28,7 +29,9 @@
   "@babel/cli": "^7.12.10",
   "@babel/core": "^7.12.10",
   "@babel/preset-typescript": "^7.12.7",
+  "@rollup/plugin-commonjs": "^17.1.0",
   "@rollup/plugin-json": "^4.1.0",
+  "@rollup/plugin-node-resolve": "^11.2.0",
   "@rollup/plugin-typescript": "^8.1.0",
   "@superevilmegaco/jest-evil-svg-transformer": "^0.0.4",
   "@typescript-eslint/eslint-plugin": "4",
