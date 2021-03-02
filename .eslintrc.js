@@ -4,7 +4,7 @@ module.exports = {
     'cypress/globals': true
   },
   parserOptions: {
-    project: './tsconfig.json'
+    project: './tsconfig.eslint.json'
   },
   plugins: [
     'cypress'
