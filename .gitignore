@@ -3,3 +3,5 @@ tags
 node_modules
 dev.html
 /package-lock.json
+.idea
+.vendor
