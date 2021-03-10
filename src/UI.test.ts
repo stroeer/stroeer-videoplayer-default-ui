@@ -9,6 +9,11 @@ const pauseStub = jest
   .spyOn(window.HTMLMediaElement.prototype, 'pause')
   .mockImplementation(() => { })
 
+afterEach(() => {
+  playStub.mockClear()
+  pauseStub.mockClear()
+})
+
 const rootEl = document.createElement('div')
 rootEl.classList.add('stroeer-videoplayer')
 const uiEl = document.createElement('div')
@@ -118,21 +123,18 @@ it('should trigger a play, when clicking on the replay button', () => {
   const btn = uiEl.querySelector('.buttons .replay') as HTMLButtonElement
   btn.click()
   expect(playStub).toHaveBeenCalled()
-  playStub.mockClear()
 })
 
 it('should trigger a play, when clicking on the play button', () => {
   const btn = uiEl.querySelector('.buttons .play') as HTMLButtonElement
   btn.click()
   expect(playStub).toHaveBeenCalled()
-  playStub.mockClear()
 })
 
 it('should trigger a pause, when clicking on the pause button', () => {
   const btn = uiEl.querySelector('.buttons .pause') as HTMLButtonElement
   btn.click()
   expect(pauseStub).toHaveBeenCalled()
-  pauseStub.mockClear()
 })
 
 it('should mute the video when clicked on the mute button', () => {
@@ -145,4 +147,18 @@ it('should unmute the video when clicked on the unmute button', () => {
   const btn = uiEl.querySelector('.buttons .unmute') as HTMLButtonElement
   btn.click()
   expect(videoEl.muted).toBe(false)
+})
+
+describe('accessibility (a11y)', () => {
+  it('should contain a `aria-label` for all control buttons', () => {
+    uiEl.querySelectorAll('.buttons button').forEach(button => {
+      expect(button.getAttribute('aria-label')).not.toBe(null)
+    })
+  })
+
+  it('should contain a `aria-hidden` attribute for all visually hidden elements', () => {
+    uiEl.querySelectorAll('.hidden').forEach(element => {
+      expect(element.getAttribute('aria-hidden')).toBe('true')
+    })
+  })
 })

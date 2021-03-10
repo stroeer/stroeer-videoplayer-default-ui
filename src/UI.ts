@@ -9,6 +9,16 @@ interface IStroeerVideoplayer {
   getVideoEl: Function
 }
 
+const hideElement = (element: HTMLElement): void => {
+  element.classList.add('hidden')
+  element.setAttribute('aria-hidden', 'true')
+}
+
+const showElement = (element: HTMLElement): void => {
+  element.classList.remove('hidden')
+  element.removeAttribute('aria-hidden')
+}
+
 class UI {
   version: string
   uiName: string
@@ -61,7 +71,8 @@ class UI {
 
     const replayButton = document.createElement('button')
     replayButton.classList.add('replay')
-    replayButton.classList.add('hidden')
+    replayButton.setAttribute('aria-label', 'Replay')
+    hideElement(replayButton)
     replayButton.addEventListener('click', () => {
       videoEl.play()
     })
@@ -70,6 +81,7 @@ class UI {
 
     const playButton = document.createElement('button')
     playButton.classList.add('play')
+    playButton.setAttribute('aria-label', 'Play')
     playButton.addEventListener('click', () => {
       videoEl.play()
     })
@@ -78,9 +90,10 @@ class UI {
 
     const pauseButton = document.createElement('button')
     pauseButton.classList.add('pause')
+    pauseButton.setAttribute('aria-label', 'Pause')
     // hide button if in paused state
     if (videoEl.paused === true) {
-      pauseButton.classList.add('hidden')
+      hideElement(pauseButton)
     }
     pauseButton.addEventListener('click', () => {
       videoEl.pause()
@@ -90,9 +103,10 @@ class UI {
 
     const muteButton = document.createElement('button')
     muteButton.classList.add('mute')
+    muteButton.setAttribute('aria-label', 'Mute')
     // hide button if in muted state
     if (videoEl.muted === true) {
-      muteButton.classList.add('hidden')
+      hideElement(muteButton)
     }
     muteButton.addEventListener('click', () => {
       videoEl.muted = true
@@ -102,9 +116,10 @@ class UI {
 
     const unmuteButton = document.createElement('button')
     unmuteButton.classList.add('unmute')
+    unmuteButton.setAttribute('aria-label', 'Unmute')
     // if not muted, hide the button
     if (videoEl.muted === false) {
-      unmuteButton.classList.add('hidden')
+      hideElement(unmuteButton)
     }
     unmuteButton.addEventListener('click', () => {
       videoEl.muted = false
@@ -114,6 +129,7 @@ class UI {
 
     const enterFullscreenButton = document.createElement('button')
     enterFullscreenButton.classList.add('enterFullscreen')
+    enterFullscreenButton.setAttribute('aria-label', 'Enter Fullscreen')
     enterFullscreenButton.addEventListener('click', () => {
       rootEl.requestFullscreen()
     })
@@ -122,7 +138,8 @@ class UI {
 
     const exitFullscreenButton = document.createElement('button')
     exitFullscreenButton.classList.add('exitFullscreen')
-    exitFullscreenButton.classList.add('hidden')
+    exitFullscreenButton.setAttribute('aria-label', 'Exit Fullscreen')
+    hideElement(exitFullscreenButton)
     exitFullscreenButton.addEventListener('click', () => {
       document.exitFullscreen().then(noop).catch(noop)
     })
@@ -158,14 +175,15 @@ class UI {
     uiEl.appendChild(uiContainer)
 
     this.onVideoElPlay = () => {
-      playButton.classList.add('hidden')
-      pauseButton.classList.remove('hidden')
+      console.log('play')
+      hideElement(playButton)
+      showElement(pauseButton)
     }
     videoEl.addEventListener('play', this.onVideoElPlay)
 
     this.onVideoElPause = () => {
-      playButton.classList.remove('hidden')
-      pauseButton.classList.add('hidden')
+      showElement(playButton)
+      hideElement(pauseButton)
     }
     videoEl.addEventListener('pause', this.onVideoElPause)
 
@@ -178,22 +196,22 @@ class UI {
 
     this.onVideoElVolumeChange = () => {
       if (videoEl.muted === true) {
-        muteButton.classList.add('hidden')
-        unmuteButton.classList.remove('hidden')
+        hideElement(muteButton)
+        showElement(unmuteButton)
       } else {
-        muteButton.classList.remove('hidden')
-        unmuteButton.classList.add('hidden')
+        showElement(muteButton)
+        hideElement(unmuteButton)
       }
     }
     videoEl.addEventListener('volumechange', this.onVideoElVolumeChange)
 
     this.onDocumentFullscreenChange = () => {
       if (document.fullscreenElement === rootEl) {
-        enterFullscreenButton.classList.add('hidden')
-        exitFullscreenButton.classList.remove('hidden')
+        hideElement(enterFullscreenButton)
+        showElement(exitFullscreenButton)
       } else {
-        enterFullscreenButton.classList.remove('hidden')
-        exitFullscreenButton.classList.add('hidden')
+        showElement(enterFullscreenButton)
+        hideElement(exitFullscreenButton)
       }
     }
     // @ts-expect-error
