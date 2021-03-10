@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build project
-        run: yarn --dev || exit 1 && yarn lint || exit 2 && yarn test || exit 3 && yarn build || exit 4 && zip --junk-paths stroeer-videoplayer-${{ steps.get_version.outputs.VERSION }}.zip dist/*.js dist/*.css
+        run: yarn --dev || exit 1 && yarn lint || exit 2 && yarn test || exit 3 && yarn build || exit 4 && zip --junk-paths stroeer-videoplayer-default-ui-${{ steps.get_version.outputs.VERSION }}.zip dist/*.js dist/*.css
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -34,6 +34,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./stroeer-videoplayer-${{ steps.get_version.outputs.VERSION }}.zip
-          asset_name: stroeer-videoplayer-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_path: ./stroeer-videoplayer-default-ui-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: stroeer-videoplayer-default-ui-${{ steps.get_version.outputs.VERSION }}.zip
           asset_content_type: application/zip
