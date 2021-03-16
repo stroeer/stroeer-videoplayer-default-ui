@@ -691,6 +691,11 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+"@stroeer/stroeer-videoplayer@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@stroeer/stroeer-videoplayer/-/stroeer-videoplayer-0.0.5.tgz#220269d0ba9fe74a9825c9568df1cead6c88c97b"
+  integrity sha512-rgqD3oJUa9v4o4gFxCHNS1EMWkTpfXo9d+SjncHSLotL1qd9IrQw2ENSYO4t9rM//0kFlDSmi/XFHBFXp7TJqg==
+
 "@superevilmegaco/jest-evil-svg-transformer@^0.0.4":
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/@superevilmegaco/jest-evil-svg-transformer/-/jest-evil-svg-transformer-0.0.4.tgz#26d66a6d34f028860a616c1925a56071b8ecd23b"
