@@ -28,21 +28,50 @@ class UI {
   onVideoElPause: Function
   onVideoElTimeupdate: Function
   onVideoElVolumeChange: Function
+  buttonsContainer: HTMLElement
 
   constructor () {
     this.version = version
     this.uiName = 'default'
-    this.uiContainerClassName = 'default-ui'
+    this.uiContainerClassName = 'default'
     this.onDocumentFullscreenChange = noop
     this.onVideoElPlay = noop
     this.onVideoElPause = noop
     this.onVideoElTimeupdate = noop
     this.onVideoElVolumeChange = noop
+    this.buttonsContainer = document.createElement('div')
 
     return this
   }
 
+  // createButton Function:
+  // creates a HTMLElement with given options, adds it to the buttonsContainer and returns it
+  //   tag - the html tag to choose, mostly 'button'
+  //   cls - the css class the tag gets
+  //   aria - the aria label
+  //   svgid - the id of the icon in the icon-svg
+  //   ishidden - true to render hidden initially
+  //   clickcb - a callback function called on 'click'
+
+  createButton = (tag: string, cls: string, aria: string, svgid: string, ishidden: boolean, clickcb: Function): HTMLElement => {
+    const el = document.createElement(tag)
+    el.classList.add(cls)
+    el.setAttribute('aria-label', aria)
+    el.appendChild(SVGHelper(svgid))
+    if (ishidden) hideElement(el)
+    console.log('create Button', tag, cls, aria, svgid, ishidden, clickcb)
+    if (clickcb !== null) {
+      el.addEventListener('click', (evt) => {
+        clickcb()
+        console.log('click', evt)
+      })
+    }
+    this.buttonsContainer.appendChild(el)
+    return el
+  }
+
   init = (StroeerVideoplayer: IStroeerVideoplayer): void => {
+    console.log('Init')
     const rootEl = StroeerVideoplayer.getRootEl()
     const videoEl = StroeerVideoplayer.getVideoEl()
     videoEl.removeAttribute('controls')
@@ -62,89 +91,32 @@ class UI {
     const controlbar = document.createElement('div')
     const timelineContainer = document.createElement('div')
     const timelineElapsed = document.createElement('div')
-    const buttonsContainer = document.createElement('div')
     uiContainer.className = this.uiContainerClassName
     controlbar.className = 'controlbar'
     timelineContainer.className = 'timeline'
     timelineElapsed.className = 'elapsed'
-    buttonsContainer.className = 'buttons'
+    this.buttonsContainer.className = 'buttons'
 
-    const replayButton = document.createElement('button')
-    replayButton.classList.add('replay')
-    replayButton.setAttribute('aria-label', 'Replay')
-    hideElement(replayButton)
-    replayButton.addEventListener('click', () => {
-      videoEl.play()
-    })
-    replayButton.appendChild(SVGHelper('replay'))
-    buttonsContainer.appendChild(replayButton)
+    // Create the Buttons
+    const playButton = this.createButton('button', 'play', 'Play', 'play', false, () => { videoEl.play() })
 
-    const playButton = document.createElement('button')
-    playButton.classList.add('play')
-    playButton.setAttribute('aria-label', 'Play')
-    playButton.addEventListener('click', () => {
-      videoEl.play()
-    })
-    playButton.appendChild(SVGHelper('play'))
-    buttonsContainer.appendChild(playButton)
+    const replayButton = this.createButton('button', 'replay', 'Replay', 'replay', true, () => { videoEl.play() })
+    // this line is to cheat the TS Parser, cause this const replayButton is not in use
+    // nonetheless the replayButton does exist and has a function, so it should be worth a const
+    console.log(replayButton)
 
-    const pauseButton = document.createElement('button')
-    pauseButton.classList.add('pause')
-    pauseButton.setAttribute('aria-label', 'Pause')
-    // hide button if in paused state
-    if (videoEl.paused === true) {
-      hideElement(pauseButton)
-    }
-    pauseButton.addEventListener('click', () => {
-      videoEl.pause()
-    })
-    pauseButton.appendChild(SVGHelper('pause'))
-    buttonsContainer.appendChild(pauseButton)
+    const pauseButton = this.createButton('button', 'pause', 'Pause', 'pause', videoEl.paused, () => { videoEl.pause() })
 
-    const muteButton = document.createElement('button')
-    muteButton.classList.add('mute')
-    muteButton.setAttribute('aria-label', 'Mute')
-    // hide button if in muted state
-    if (videoEl.muted === true) {
-      hideElement(muteButton)
-    }
-    muteButton.addEventListener('click', () => {
-      videoEl.muted = true
-    })
-    muteButton.appendChild(SVGHelper('volume'))
-    buttonsContainer.appendChild(muteButton)
+    const muteButton = this.createButton('button', 'mute', 'Mute', 'volume', videoEl.muted, () => { videoEl.muted = true })
 
-    const unmuteButton = document.createElement('button')
-    unmuteButton.classList.add('unmute')
-    unmuteButton.setAttribute('aria-label', 'Unmute')
-    // if not muted, hide the button
-    if (videoEl.muted === false) {
-      hideElement(unmuteButton)
-    }
-    unmuteButton.addEventListener('click', () => {
-      videoEl.muted = false
-    })
-    unmuteButton.appendChild(SVGHelper('muted'))
-    buttonsContainer.appendChild(unmuteButton)
+    const unmuteButton = this.createButton('button', 'unmute', 'Unmute', 'muted', true, () => { videoEl.muted = false })
 
-    const enterFullscreenButton = document.createElement('button')
-    enterFullscreenButton.classList.add('enterFullscreen')
-    enterFullscreenButton.setAttribute('aria-label', 'Enter Fullscreen')
-    enterFullscreenButton.addEventListener('click', () => {
-      rootEl.requestFullscreen()
-    })
-    enterFullscreenButton.appendChild(SVGHelper('enter-fullscreen'))
-    buttonsContainer.appendChild(enterFullscreenButton)
+    const enterFullscreenButton = this.createButton('button', 'enterFullscreen', 'Enter Fullscreen', 'enter-fullscreen', false, () => { rootEl.requestFullscreen() })
 
-    const exitFullscreenButton = document.createElement('button')
-    exitFullscreenButton.classList.add('exitFullscreen')
-    exitFullscreenButton.setAttribute('aria-label', 'Exit Fullscreen')
-    hideElement(exitFullscreenButton)
-    exitFullscreenButton.addEventListener('click', () => {
-      document.exitFullscreen().then(noop).catch(noop)
-    })
-    exitFullscreenButton.appendChild(SVGHelper('exit-fullscreen'))
-    buttonsContainer.appendChild(exitFullscreenButton)
+    const exitFullscreenButton = this.createButton('button', 'exitFullscreen', 'Exit Fullscreen', 'exit-fullscreen', true, () => { document.exitFullscreen().then(noop).catch(noop) })
+
+    const settingsButton = this.createButton('button', 'settings', 'Settings', 'settings', false, () => { console.log('settings') })
+    console.log(settingsButton)
 
     // Make timeline seekable
     timelineContainer.addEventListener('click', (evt) => {
@@ -170,7 +142,7 @@ class UI {
 
     timelineContainer.appendChild(timelineElapsed)
     controlbar.appendChild(timelineContainer)
-    controlbar.appendChild(buttonsContainer)
+    controlbar.appendChild(this.buttonsContainer)
     uiContainer.appendChild(controlbar)
     uiEl.appendChild(uiContainer)
 
