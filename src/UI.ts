@@ -53,19 +53,16 @@ class UI {
   //   ishidden - true to render hidden initially
   //   clickcb - a callback function called on 'click'
 
-  createButton = (tag: string, cls: string, aria: string, svgid: string, ishidden: boolean, clickcb: Function): HTMLElement => {
+  createButton = (tag: string, cls: string, aria: string, svgid: string, ishidden: boolean, evts: Array<{ name: string, callb: Function }>): HTMLElement => {
     const el = document.createElement(tag)
     el.classList.add(cls)
     el.setAttribute('aria-label', aria)
     el.appendChild(SVGHelper(svgid))
     if (ishidden) hideElement(el)
-    console.log('create Button', tag, cls, aria, svgid, ishidden, clickcb)
-    if (clickcb !== null) {
-      el.addEventListener('click', (evt) => {
-        clickcb()
-        console.log('click', evt)
-      })
-    }
+    console.log('create Button2', tag, cls, aria, svgid, ishidden, evts)
+    evts.forEach((value, index) => {
+      el.addEventListener(value.name, (ev) => { value.callb(ev) })
+    })
     this.buttonsContainer.appendChild(el)
     return el
   }
@@ -98,24 +95,35 @@ class UI {
     this.buttonsContainer.className = 'buttons'
 
     // Create the Buttons
-    const playButton = this.createButton('button', 'play', 'Play', 'play', false, () => { videoEl.play() })
+    const playButton = this.createButton('button', 'play', 'Play', 'play', false,
+      [{ name: 'click', callb: () => { videoEl.play() } }])
 
-    const replayButton = this.createButton('button', 'replay', 'Replay', 'replay', true, () => { videoEl.play() })
+    const replayButton = this.createButton('button', 'replay', 'Replay', 'replay', true,
+      [{ name: 'click', callb: () => { videoEl.play() } }])
+
     // this line is to cheat the TS Parser, cause this const replayButton is not in use
     // nonetheless the replayButton does exist and has a function, so it should be worth a const
     console.log(replayButton)
 
-    const pauseButton = this.createButton('button', 'pause', 'Pause', 'pause', videoEl.paused, () => { videoEl.pause() })
+    const pauseButton = this.createButton('button', 'pause', 'Pause', 'pause', videoEl.paused,
+      [{ name: 'click', callb: () => { videoEl.pause() } }])
 
-    const muteButton = this.createButton('button', 'mute', 'Mute', 'volume', videoEl.muted, () => { videoEl.muted = true })
+    const muteButton = this.createButton('button', 'mute', 'Mute', 'volume', videoEl.muted,
+      [{ name: 'click', callb: () => { videoEl.muted = true } }])
 
-    const unmuteButton = this.createButton('button', 'unmute', 'Unmute', 'muted', true, () => { videoEl.muted = false })
+    const unmuteButton = this.createButton('button', 'unmute', 'Unmute', 'muted', true,
+      [{ name: 'click', callb: () => { videoEl.muted = false } }])
 
-    const enterFullscreenButton = this.createButton('button', 'enterFullscreen', 'Enter Fullscreen', 'enter-fullscreen', false, () => { rootEl.requestFullscreen() })
+    const enterFullscreenButton = this.createButton('button', 'enterFullscreen',
+      'Enter Fullscreen', 'enter-fullscreen', false,
+      [{ name: 'click', callb: () => { rootEl.requestFullscreen() } }])
 
-    const exitFullscreenButton = this.createButton('button', 'exitFullscreen', 'Exit Fullscreen', 'exit-fullscreen', true, () => { document.exitFullscreen().then(noop).catch(noop) })
+    const exitFullscreenButton = this.createButton('button', 'exitFullscreen',
+      'Exit Fullscreen', 'exit-fullscreen', true,
+      [{ name: 'click', callb: () => { document.exitFullscreen().then(noop).catch(noop) } }])
 
-    const settingsButton = this.createButton('button', 'settings', 'Settings', 'settings', false, () => { console.log('settings') })
+    const settingsButton = this.createButton('button', 'settings', 'Settings', 'settings', false,
+      [{ name: 'click', callb: () => { console.log('settings') } }])
     console.log(settingsButton)
 
     // Make timeline seekable
