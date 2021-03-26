@@ -27,7 +27,26 @@
 				user-select: none;
 			}
 		}
-		.buttons {
+                .settingsmenu {
+	            position: absolute;
+	            right: 0;
+	            bottom: 48px;
+	            background: rgba(0,0,0,0.5);
+		    &.hidden {
+			display: none;
+		    }
+                    button {
+	                display: block;
+	                border: 0;
+	                background: rgba(0,0,0,0.5);
+	                color: #fff;
+	                line-height: 20px;
+	                margin: 5px;
+                        float:right;
+                        clear:both;
+                    }
+                }
+                .buttons {
 			display: block;
 			height: 48px;
 			background-color: rgba(0, 0 , 0, .5);
@@ -39,10 +58,10 @@
 				&:hover {
 					background-color: rgba(255, 255 , 255, .5);
 				}
-				padding: 8px;
 				&.hidden {
 					display: none;
 				}
+				padding: 8px;
 				height: 44px;
 				width: 44px;
 				svg {
@@ -51,6 +70,10 @@
 					width: 28px;
 				}
 			}
+                        .settings {
+	                    position: absolute;
+	                    right: 0;
+                        }
 		}
 	}
 }

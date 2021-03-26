@@ -29,6 +29,8 @@ class UI {
   onVideoElTimeupdate: Function
   onVideoElVolumeChange: Function
   buttonsContainer: HTMLElement
+  controlBar: HTMLElement
+  settingsMenu: HTMLElement
 
   constructor () {
     this.version = version
@@ -40,6 +42,8 @@ class UI {
     this.onVideoElTimeupdate = noop
     this.onVideoElVolumeChange = noop
     this.buttonsContainer = document.createElement('div')
+    this.controlBar = document.createElement('div')
+    this.settingsMenu = document.createElement('div')
 
     return this
   }
@@ -53,7 +57,8 @@ class UI {
   //   ishidden - true to render hidden initially
   //   clickcb - a callback function called on 'click'
 
-  createButton = (tag: string, cls: string, aria: string, svgid: string, ishidden: boolean, evts: Array<{ name: string, callb: Function }>): HTMLElement => {
+  createButton = (tag: string, cls: string, aria: string, svgid: string, ishidden: boolean,
+    evts: Array<{ name: string, callb: Function }>): HTMLElement => {
     const el = document.createElement(tag)
     el.classList.add(cls)
     el.setAttribute('aria-label', aria)
@@ -65,6 +70,23 @@ class UI {
     })
     this.buttonsContainer.appendChild(el)
     return el
+  }
+
+  createSettingsMenu = (plr: HTMLVideoElement): HTMLElement => {
+    const sources: NodeListOf<HTMLSourceElement> = plr.querySelectorAll('source')
+    sources.forEach((o, i) => {
+      const btn = document.createElement('button')
+      btn.innerHTML = o.dataset.label ?? ''
+      btn.addEventListener('click', (ev) => {
+        hideElement(this.settingsMenu)
+        plr.src = o.src ?? ''
+      })
+      this.settingsMenu.appendChild(btn)
+      console.log('setting menu', typeof o.dataset.label, o.src, btn)
+    })
+    this.settingsMenu.classList.add('settingsmenu')
+    this.controlBar.appendChild(this.settingsMenu)
+    return this.settingsMenu
   }
 
   init = (StroeerVideoplayer: IStroeerVideoplayer): void => {
@@ -85,11 +107,10 @@ class UI {
     }
 
     const uiContainer = document.createElement('div')
-    const controlbar = document.createElement('div')
     const timelineContainer = document.createElement('div')
     const timelineElapsed = document.createElement('div')
     uiContainer.className = this.uiContainerClassName
-    controlbar.className = 'controlbar'
+    this.controlBar.className = 'controlbar'
     timelineContainer.className = 'timeline'
     timelineElapsed.className = 'elapsed'
     this.buttonsContainer.className = 'buttons'
@@ -123,8 +144,22 @@ class UI {
       [{ name: 'click', callb: () => { document.exitFullscreen().then(noop).catch(noop) } }])
 
     const settingsButton = this.createButton('button', 'settings', 'Settings', 'settings', false,
-      [{ name: 'click', callb: () => { console.log('settings') } }])
+      [{
+        name: 'click',
+        callb: () => {
+          if (this.settingsMenu.classList.contains('hidden')) showElement(this.settingsMenu)
+          else hideElement(this.settingsMenu)
+        }
+      }])
     console.log(settingsButton)
+
+    const settingsMenu = this.createSettingsMenu(videoEl)
+    hideElement(settingsMenu)
+    this.controlBar.addEventListener('mouseleave', (evt) => {
+      //    console.log(this.controlBar,evt);
+      hideElement(this.settingsMenu)
+    })
+    console.log(settingsMenu)
 
     // Make timeline seekable
     timelineContainer.addEventListener('click', (evt) => {
@@ -149,9 +184,9 @@ class UI {
     })
 
     timelineContainer.appendChild(timelineElapsed)
-    controlbar.appendChild(timelineContainer)
-    controlbar.appendChild(this.buttonsContainer)
-    uiContainer.appendChild(controlbar)
+    this.controlBar.appendChild(timelineContainer)
+    this.controlBar.appendChild(this.buttonsContainer)
+    uiContainer.appendChild(this.controlBar)
     uiEl.appendChild(uiContainer)
 
     this.onVideoElPlay = () => {
