@@ -32,7 +32,7 @@
 	            width: 200px;
 	            height: 20px;
 	            position: absolute;
-	            left: 100px;
+	            left: 105px;
 	            bottom: 5px;
 	            /*background: #fcc;*/
 	            height: 40px;
@@ -98,6 +98,9 @@
 	                    margin: 5px;
                             line-height: 20px;
                             font-style: normal;
+                            &:hover {
+	                        background: rgba(98, 0, 46, 0.7);
+                            }
                             &.selected {
 	                        background: #e20074;
 	                        color: #fff;
@@ -121,6 +124,9 @@
 	                margin: 5px;
                         border-radius: 3px;
                         cursor: pointer;
+                        &:hover {
+	                    background: rgba(98, 0, 46, 0.7);
+                        }
                         &.selected {
 	                    background: #e20074;
 	                    color: #fff;
