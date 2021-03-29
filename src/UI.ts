@@ -31,6 +31,7 @@ class UI {
   buttonsContainer: HTMLElement
   controlBar: HTMLElement
   settingsMenu: HTMLElement
+  isMouseDown: Boolean
 
   constructor () {
     this.version = version
@@ -44,6 +45,7 @@ class UI {
     this.buttonsContainer = document.createElement('div')
     this.controlBar = document.createElement('div')
     this.settingsMenu = document.createElement('div')
+    this.isMouseDown = false
 
     return this
   }
@@ -72,17 +74,8 @@ class UI {
     return el
   }
 
-  // SetDefaultPlaybackRate(a(this, "value"))
   createSettingsMenu = (StroeerVideoplayer: IStroeerVideoplayer): HTMLElement => {
     const plr = StroeerVideoplayer.getVideoEl()
-
-    // Copy Debug Info Button
-    // const debugInfo = document.createElement( 'div' )
-    // debugInfo.innerHTML = "copy debug info"
-    // debugInfo.addEventListener('click', (ev) => {
-    //     console.log('no debug info present');
-    // })
-    // this.settingsMenu.appendChild(debugInfo)
 
     // Playspeed Choser
     const speedLine = document.createElement('div')
@@ -178,6 +171,49 @@ class UI {
 
     const unmuteButton = this.createButton('button', 'unmute', 'Unmute', 'muted', true,
       [{ name: 'click', callb: () => { videoEl.muted = false } }])
+
+    // Volume slider
+    const volSlider = document.createElement('div')
+    volSlider.classList.add('volSliderBox')
+    volSlider.innerHTML = '<i><s></s></i>'
+    const aktVolPos = (aktx: number): void => {
+      const clickX = aktx
+      let percentClick = Math.floor(100 / volSlider.clientWidth * clickX)
+      const inner = volSlider.querySelector('s')
+      if (percentClick <= 0) {
+        videoEl.muted = true
+        percentClick = 0
+      } else {
+        videoEl.muted = false
+        if (percentClick > 100) percentClick = 100
+      }
+      if (inner !== null) inner.style.width = percentClick.toString() + '%'
+      videoEl.volume = percentClick / 100
+    }
+    volSlider.addEventListener('mousedown', (evt) => {
+      aktVolPos(evt.offsetX)
+      this.isMouseDown = true
+    })
+    volSlider.addEventListener('touchstart', (evt) => {
+      aktVolPos(evt.targetTouches[0].pageX)
+      this.isMouseDown = true
+    })
+    volSlider.addEventListener('mouseup', (evt) => {
+      this.isMouseDown = false
+    })
+    volSlider.addEventListener('mouseleave', (evt) => {
+      this.isMouseDown = false
+    })
+    volSlider.addEventListener('touchend', (evt) => {
+      this.isMouseDown = false
+    })
+    volSlider.addEventListener('mousemove', (evt) => {
+      if (this.isMouseDown === true) aktVolPos(evt.offsetX)
+    })
+    volSlider.addEventListener('touchmove', (evt) => {
+      if (this.isMouseDown === true) aktVolPos(evt.targetTouches[0].pageX)
+    })
+    this.controlBar.appendChild(volSlider)
 
     const enterFullscreenButton = this.createButton('button', 'enterFullscreen',
       'Enter Fullscreen', 'enter-fullscreen', false,

@@ -28,6 +28,50 @@
 				user-select: none;
 			}
 		}
+                .volSliderBox {
+	            width: 200px;
+	            height: 20px;
+	            position: absolute;
+	            left: 100px;
+	            bottom: 5px;
+	            /*background: #fcc;*/
+	            height: 40px;
+                    i {
+	                width: 100%;
+	                height: 10px;
+	                display: block;
+	                position: absolute;
+	                left: 0;
+	                top: 16px;
+	                background: rgba(0,0,0,0.5);
+	                border-radius: 3px;
+	                overflow: visible;
+                        cursor: pointer;
+                        s {
+	                    display: block;
+	                    position: absolute;
+	                    height: 100%;
+	                    width: 100%;
+	                    background: #fff;
+                            overflow: visible;
+                            border-radius: 3px;
+                            &:after {
+	                        content: " ";
+	                        width: 15px;
+	                        height: 15px;
+	                        display: block;
+	                        position: absolute;
+	                        right: -7px;
+	                        top: -2px;
+	                        border-radius: 7px;
+	                        color: #fff;
+	                        color: #e20074;
+	                        z-index: 10;
+	                        background: #e20074;
+                            }
+                        }
+                    }
+                }
                 .settingsmenu {
 	            position: absolute;
 	            right: 0;
@@ -82,7 +126,7 @@
 	                    color: #fff;
                             cursor: default;
                         }
-                    }                    
+                    }
                 }
                 .buttons {
 			display: block;
