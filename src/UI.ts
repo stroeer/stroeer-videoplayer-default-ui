@@ -72,12 +72,56 @@ class UI {
     return el
   }
 
-  createSettingsMenu = (plr: HTMLVideoElement): HTMLElement => {
+  // SetDefaultPlaybackRate(a(this, "value"))
+  createSettingsMenu = (StroeerVideoplayer: IStroeerVideoplayer): HTMLElement => {
+    const plr = StroeerVideoplayer.getVideoEl()
+
+    // Copy Debug Info Button
+    // const debugInfo = document.createElement( 'div' )
+    // debugInfo.innerHTML = "copy debug info"
+    // debugInfo.addEventListener('click', (ev) => {
+    //     console.log('no debug info present');
+    // })
+    // this.settingsMenu.appendChild(debugInfo)
+
+    // Playspeed Choser
+    const speedLine = document.createElement('div')
+    speedLine.classList.add('speedbox')
+    const spdlneChoser = document.createElement('span')
+    const speeds = [0.5, 1, 1.5, 2]
+    speeds.forEach((o, i) => {
+      const opt = document.createElement('i')
+      if (plr.playbackRate === o) opt.classList.add('selected')
+      opt.innerHTML = o.toString()
+      opt.addEventListener('click', (ev) => {
+        if (plr.playbackRate === o) return
+        plr.playbackRate = o
+        plr.defaultPlaybackRate = o
+        const selects = spdlneChoser.querySelector('.selected')
+        if (selects !== null) selects.classList.remove('selected')
+        opt.classList.add('selected')
+        hideElement(this.settingsMenu)
+      })
+      spdlneChoser.appendChild(opt)
+    })
+    speedLine.innerHTML = 'Speed '
+    speedLine.appendChild(spdlneChoser)
+    this.settingsMenu.appendChild(speedLine)
+
+    // Quality Choser
+    const qualCaption = document.createElement('h2')
+    qualCaption.innerHTML = 'Quality'
+    this.settingsMenu.appendChild(qualCaption)
+
     const sources: NodeListOf<HTMLSourceElement> = plr.querySelectorAll('source')
     sources.forEach((o, i) => {
       const btn = document.createElement('button')
       btn.innerHTML = o.dataset.label ?? ''
+      if (plr.currentSrc === o.src) btn.classList.add('selected')
       btn.addEventListener('click', (ev) => {
+        const selects = this.settingsMenu.querySelector('button.selected')
+        if (selects !== null) selects.classList.remove('selected')
+        btn.classList.add('selected')
         hideElement(this.settingsMenu)
         plr.src = o.src ?? ''
       })
@@ -153,7 +197,7 @@ class UI {
       }])
     console.log(settingsButton)
 
-    const settingsMenu = this.createSettingsMenu(videoEl)
+    const settingsMenu = this.createSettingsMenu(StroeerVideoplayer)
     hideElement(settingsMenu)
     this.controlBar.addEventListener('mouseleave', (evt) => {
       //    console.log(this.controlBar,evt);
