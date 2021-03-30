@@ -60,7 +60,7 @@ it('should equal the version from package.json', () => {
 
 it('should exit early', () => {
   StroeerVideoplayerDefaultUI.init(svp)
-  expect(uiEl.querySelectorAll('.default-ui').length).toBe(1)
+  expect(uiEl.querySelectorAll('.default').length).toBe(1)
 })
 
 it('should remove the controls from the video element', () => {
@@ -72,7 +72,7 @@ it('should append the default icons as svg to the document body', () => {
 })
 
 it('should have an UI container', () => {
-  expect(uiEl.querySelector('.default-ui')).not.toEqual(null)
+  expect(uiEl.querySelector('.default')).not.toEqual(null)
 })
 
 it('should have a controlbar container', () => {
