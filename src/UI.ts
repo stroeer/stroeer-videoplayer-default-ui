@@ -325,6 +325,12 @@ class UI {
       videoEl.removeEventListener('volumechange', this.onVideoElVolumeChange)
       // @ts-expect-error
       document.removeEventListener('fullscreenchange', this.onDocumentFullscreenChange)
+      if (this.settingsMenu.parentNode !== null) this.settingsMenu.parentNode.removeChild(this.settingsMenu)
+      this.settingsMenu = document.createElement('div')
+      if (this.controlBar.parentNode !== null) this.controlBar.parentNode.removeChild(this.controlBar)
+      this.controlBar = document.createElement('div')
+      if (this.buttonsContainer.parentNode !== null) this.buttonsContainer.parentNode.removeChild(this.buttonsContainer)
+      this.buttonsContainer = document.createElement('div')
       uiEl.removeChild(uiEl.firstChild)
     }
   }
