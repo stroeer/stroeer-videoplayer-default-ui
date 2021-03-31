@@ -28,9 +28,6 @@ class UI {
   onVideoElPause: Function
   onVideoElTimeupdate: Function
   onVideoElVolumeChange: Function
-  buttonsContainer: HTMLElement
-  controlBar: HTMLElement
-  settingsMenu: HTMLElement
   isMouseDown: Boolean
 
   constructor () {
@@ -42,9 +39,6 @@ class UI {
     this.onVideoElPause = noop
     this.onVideoElTimeupdate = noop
     this.onVideoElVolumeChange = noop
-    this.buttonsContainer = document.createElement('div')
-    this.controlBar = document.createElement('div')
-    this.settingsMenu = document.createElement('div')
     this.isMouseDown = false
 
     return this
@@ -59,24 +53,27 @@ class UI {
   //   ishidden - true to render hidden initially
   //   clickcb - a callback function called on 'click'
 
-  createButton = (tag: string, cls: string, aria: string, svgid: string, ishidden: boolean,
+  createButton = (StroeerVideoplayer: IStroeerVideoplayer, tag: string, cls: string, aria: string, svgid: string, ishidden: boolean,
     evts: Array<{ name: string, callb: Function }>): HTMLElement => {
+    const buttonsContainer = StroeerVideoplayer.getUIEl().querySelector('.buttons')
     const el = document.createElement(tag)
     el.classList.add(cls)
     el.setAttribute('aria-label', aria)
     el.appendChild(SVGHelper(svgid))
+
     if (ishidden) hideElement(el)
-    console.log('create Button2', tag, cls, aria, svgid, ishidden, evts)
+    // console.log('create Button2', tag, cls, aria, svgid, ishidden, evts)
     evts.forEach((value, index) => {
       el.addEventListener(value.name, (ev) => { value.callb(ev) })
     })
-    this.buttonsContainer.appendChild(el)
+    buttonsContainer.appendChild(el)
     return el
   }
 
   createSettingsMenu = (StroeerVideoplayer: IStroeerVideoplayer): HTMLElement => {
     const plr = StroeerVideoplayer.getVideoEl()
-
+    const controlBar = StroeerVideoplayer.getUIEl().querySelector('.controlbar')
+    const settingsMenu = controlBar.querySelector('.settingsMenu') ?? document.createElement('div')
     // Playspeed Choser
     const speedLine = document.createElement('div')
     speedLine.classList.add('speedbox')
@@ -93,18 +90,18 @@ class UI {
         const selects = spdlneChoser.querySelector('.selected')
         if (selects !== null) selects.classList.remove('selected')
         opt.classList.add('selected')
-        hideElement(this.settingsMenu)
+        hideElement(settingsMenu)
       })
       spdlneChoser.appendChild(opt)
     })
     speedLine.innerHTML = 'Speed '
     speedLine.appendChild(spdlneChoser)
-    this.settingsMenu.appendChild(speedLine)
+    settingsMenu.appendChild(speedLine)
 
     // Quality Choser
     const qualCaption = document.createElement('h2')
     qualCaption.innerHTML = 'Quality'
-    this.settingsMenu.appendChild(qualCaption)
+    settingsMenu.appendChild(qualCaption)
 
     const sources: NodeListOf<HTMLSourceElement> = plr.querySelectorAll('source')
     sources.forEach((o, i) => {
@@ -112,26 +109,26 @@ class UI {
       btn.innerHTML = o.dataset.label ?? ''
       if (plr.currentSrc === o.src) btn.classList.add('selected')
       btn.addEventListener('click', (ev) => {
-        const selects = this.settingsMenu.querySelector('button.selected')
+        const selects = settingsMenu.querySelector('button.selected')
         if (selects !== null) selects.classList.remove('selected')
         btn.classList.add('selected')
-        hideElement(this.settingsMenu)
+        hideElement(settingsMenu)
         plr.src = o.src ?? ''
       })
-      this.settingsMenu.appendChild(btn)
-      console.log('setting menu', typeof o.dataset.label, o.src, btn)
+      settingsMenu.appendChild(btn)
+      // console.log('setting menu', typeof o.dataset.label, o.src, btn)
     })
-    this.settingsMenu.classList.add('settingsmenu')
-    this.controlBar.appendChild(this.settingsMenu)
-    return this.settingsMenu
+    settingsMenu.classList.add('settingsmenu')
+    controlBar.appendChild(settingsMenu)
+    return settingsMenu
   }
 
   init = (StroeerVideoplayer: IStroeerVideoplayer): void => {
-    console.log('Init')
     const rootEl = StroeerVideoplayer.getRootEl()
     const videoEl = StroeerVideoplayer.getVideoEl()
     videoEl.removeAttribute('controls')
     const uiEl = StroeerVideoplayer.getUIEl()
+    console.log('Init', rootEl, videoEl, uiEl)
     if (uiEl.children.length !== 0) {
       return
     }
@@ -146,30 +143,36 @@ class UI {
     const uiContainer = document.createElement('div')
     const timelineContainer = document.createElement('div')
     const timelineElapsed = document.createElement('div')
+    const controlBar = document.createElement('div')
+    const buttonsContainer = document.createElement('div')
     uiContainer.className = this.uiContainerClassName
-    this.controlBar.className = 'controlbar'
+    controlBar.className = 'controlbar'
     timelineContainer.className = 'timeline'
     timelineElapsed.className = 'elapsed'
-    this.buttonsContainer.className = 'buttons'
+    buttonsContainer.className = 'buttons'
+    controlBar.appendChild(buttonsContainer)
+    uiContainer.appendChild(controlBar)
+    uiEl.appendChild(uiContainer)
 
+    console.log('controlBar', uiEl.innerHTML)
     // Create the Buttons
-    const playButton = this.createButton('button', 'play', 'Play', 'play', false,
+    const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'play', false,
       [{ name: 'click', callb: () => { videoEl.play() } }])
 
-    const replayButton = this.createButton('button', 'replay', 'Replay', 'replay', true,
+    const replayButton = this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'replay', true,
       [{ name: 'click', callb: () => { videoEl.play() } }])
-
+    console.log('replaybutton', replayButton)
     // this line is to cheat the TS Parser, cause this const replayButton is not in use
     // nonetheless the replayButton does exist and has a function, so it should be worth a const
-    console.log(replayButton)
+    // console.log(replayButton)
 
-    const pauseButton = this.createButton('button', 'pause', 'Pause', 'pause', videoEl.paused,
+    const pauseButton = this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'pause', videoEl.paused,
       [{ name: 'click', callb: () => { videoEl.pause() } }])
 
-    const muteButton = this.createButton('button', 'mute', 'Mute', 'volume', videoEl.muted,
+    const muteButton = this.createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'volume', videoEl.muted,
       [{ name: 'click', callb: () => { videoEl.muted = true } }])
 
-    const unmuteButton = this.createButton('button', 'unmute', 'Unmute', 'muted', true,
+    const unmuteButton = this.createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'muted', true,
       [{ name: 'click', callb: () => { videoEl.muted = false } }])
 
     // Volume slider
@@ -213,33 +216,34 @@ class UI {
     volSlider.addEventListener('touchmove', (evt) => {
       if (this.isMouseDown === true) aktVolPos(evt.targetTouches[0].pageX)
     })
-    this.controlBar.appendChild(volSlider)
+    controlBar.appendChild(volSlider)
 
-    const enterFullscreenButton = this.createButton('button', 'enterFullscreen',
+    const enterFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen',
       'Enter Fullscreen', 'enter-fullscreen', false,
       [{ name: 'click', callb: () => { rootEl.requestFullscreen() } }])
 
-    const exitFullscreenButton = this.createButton('button', 'exitFullscreen',
+    const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen',
       'Exit Fullscreen', 'exit-fullscreen', true,
       [{ name: 'click', callb: () => { document.exitFullscreen().then(noop).catch(noop) } }])
 
-    const settingsButton = this.createButton('button', 'settings', 'Settings', 'settings', false,
+    const settingsMenu = this.createSettingsMenu(StroeerVideoplayer)
+    hideElement(settingsMenu)
+
+    const settingsButton = this.createButton(StroeerVideoplayer, 'button', 'settings', 'Settings', 'settings', false,
       [{
         name: 'click',
         callb: () => {
-          if (this.settingsMenu.classList.contains('hidden')) showElement(this.settingsMenu)
-          else hideElement(this.settingsMenu)
+          if (settingsMenu.classList.contains('hidden')) showElement(settingsMenu)
+          else hideElement(settingsMenu)
         }
       }])
-    console.log(settingsButton)
+    console.log('settingsbutton', settingsButton)
 
-    const settingsMenu = this.createSettingsMenu(StroeerVideoplayer)
-    hideElement(settingsMenu)
-    this.controlBar.addEventListener('mouseleave', (evt) => {
+    controlBar.addEventListener('mouseleave', (evt) => {
       //    console.log(this.controlBar,evt);
-      hideElement(this.settingsMenu)
+      hideElement(settingsMenu)
     })
-    console.log(settingsMenu)
+    // console.log(settingsMenu)
 
     // Make timeline seekable
     timelineContainer.addEventListener('click', (evt) => {
@@ -264,13 +268,13 @@ class UI {
     })
 
     timelineContainer.appendChild(timelineElapsed)
-    this.controlBar.appendChild(timelineContainer)
-    this.controlBar.appendChild(this.buttonsContainer)
-    uiContainer.appendChild(this.controlBar)
+    controlBar.appendChild(timelineContainer)
+    controlBar.appendChild(buttonsContainer)
+    uiContainer.appendChild(controlBar)
     uiEl.appendChild(uiContainer)
 
     this.onVideoElPlay = () => {
-      console.log('play')
+      // console.log('play')
       hideElement(playButton)
       showElement(pauseButton)
     }
@@ -325,12 +329,6 @@ class UI {
       videoEl.removeEventListener('volumechange', this.onVideoElVolumeChange)
       // @ts-expect-error
       document.removeEventListener('fullscreenchange', this.onDocumentFullscreenChange)
-      if (this.settingsMenu.parentNode !== null) this.settingsMenu.parentNode.removeChild(this.settingsMenu)
-      this.settingsMenu = document.createElement('div')
-      if (this.controlBar.parentNode !== null) this.controlBar.parentNode.removeChild(this.controlBar)
-      this.controlBar = document.createElement('div')
-      if (this.buttonsContainer.parentNode !== null) this.buttonsContainer.parentNode.removeChild(this.buttonsContainer)
-      this.buttonsContainer = document.createElement('div')
       uiEl.removeChild(uiEl.firstChild)
     }
   }
