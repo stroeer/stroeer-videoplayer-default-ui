@@ -123,6 +123,17 @@ class UI {
     return settingsMenu
   }
 
+  setTimeDisp = (timeDisp: HTMLElement, el: number, tot: number): void => {
+    const elmino = timeDisp.querySelector('.elapsed .min')
+    if (elmino !== null) elmino.innerHTML = Math.floor(el / 60).toString()
+    const elseco = timeDisp.querySelector('.elapsed .sec')
+    if (elseco !== null) elseco.innerHTML = ('00' + (Math.floor(el) % 60).toString()).slice(-2)
+    const totmino = timeDisp.querySelector('.total .min')
+    if (totmino !== null) totmino.innerHTML = Math.floor(tot / 60).toString()
+    const totseco = timeDisp.querySelector('.total .sec')
+    if (totseco !== null) totseco.innerHTML = ('00' + (Math.floor(tot) % 60).toString()).slice(-2)
+  }
+
   init = (StroeerVideoplayer: IStroeerVideoplayer): void => {
     const rootEl = StroeerVideoplayer.getRootEl()
     const videoEl = StroeerVideoplayer.getVideoEl()
@@ -218,6 +229,13 @@ class UI {
     })
     controlBar.appendChild(volSlider)
 
+    // Time Display
+    const timeDisp = document.createElement('div')
+    timeDisp.classList.add('time')
+    timeDisp.innerHTML = '<div class="elapsed"><span class="min">00</span>:<span class="sec">00</span> /</div><div class="total"><span class="min">00</span>:<span class="sec">00</span></div>'
+    controlBar.appendChild(timeDisp)
+    this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
+
     const enterFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen',
       'Enter Fullscreen', 'enter-fullscreen', false,
       [{ name: 'click', callb: () => { rootEl.requestFullscreen() } }])
@@ -289,6 +307,9 @@ class UI {
     this.onVideoElTimeupdate = () => {
       const percentage = videoEl.currentTime / videoEl.duration * 100
       const percentageString = String(percentage)
+      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
+
+      //        console.log('Zeit',videoEl.currentTime,videoEl.duration, elmin, elsec, totmin, totsec)
       timelineElapsed.style.width = percentageString + '%'
     }
     videoEl.addEventListener('timeupdate', this.onVideoElTimeupdate)
