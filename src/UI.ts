@@ -168,8 +168,6 @@ class UI {
 
     this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'replay', true,
       [{ name: 'click', callb: () => { videoEl.play() } }])
-    // this line is to cheat the TS Parser, cause this const replayButton is not in use
-    // nonetheless the replayButton does exist and has a function, so it should be worth a const
 
     const pauseButton = this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'pause', videoEl.paused,
       [{ name: 'click', callb: () => { videoEl.pause() } }])
