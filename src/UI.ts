@@ -62,7 +62,6 @@ class UI {
     el.appendChild(SVGHelper(svgid))
 
     if (ishidden) hideElement(el)
-    // console.log('create Button2', tag, cls, aria, svgid, ishidden, evts)
     evts.forEach((value, index) => {
       el.addEventListener(value.name, (ev) => { value.callb(ev) })
     })
@@ -116,7 +115,6 @@ class UI {
         plr.src = o.src ?? ''
       })
       settingsMenu.appendChild(btn)
-      // console.log('setting menu', typeof o.dataset.label, o.src, btn)
     })
     settingsMenu.classList.add('settingsmenu')
     controlBar.appendChild(settingsMenu)
@@ -139,7 +137,6 @@ class UI {
     const videoEl = StroeerVideoplayer.getVideoEl()
     videoEl.removeAttribute('controls')
     const uiEl = StroeerVideoplayer.getUIEl()
-    console.log('Init', rootEl, videoEl, uiEl)
     if (uiEl.children.length !== 0) {
       return
     }
@@ -165,17 +162,12 @@ class UI {
     uiContainer.appendChild(controlBar)
     uiEl.appendChild(uiContainer)
 
-    console.log('controlBar', uiEl.innerHTML)
     // Create the Buttons
     const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'play', false,
       [{ name: 'click', callb: () => { videoEl.play() } }])
 
-    const replayButton = this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'replay', true,
+    this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'replay', true,
       [{ name: 'click', callb: () => { videoEl.play() } }])
-    console.log('replaybutton', replayButton)
-    // this line is to cheat the TS Parser, cause this const replayButton is not in use
-    // nonetheless the replayButton does exist and has a function, so it should be worth a const
-    // console.log(replayButton)
 
     const pauseButton = this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'pause', videoEl.paused,
       [{ name: 'click', callb: () => { videoEl.pause() } }])
@@ -247,7 +239,7 @@ class UI {
     const settingsMenu = this.createSettingsMenu(StroeerVideoplayer)
     hideElement(settingsMenu)
 
-    const settingsButton = this.createButton(StroeerVideoplayer, 'button', 'settings', 'Settings', 'settings', false,
+    this.createButton(StroeerVideoplayer, 'button', 'settings', 'Settings', 'settings', false,
       [{
         name: 'click',
         callb: () => {
@@ -255,13 +247,10 @@ class UI {
           else hideElement(settingsMenu)
         }
       }])
-    console.log('settingsbutton', settingsButton)
 
     controlBar.addEventListener('mouseleave', (evt) => {
-      //    console.log(this.controlBar,evt);
       hideElement(settingsMenu)
     })
-    // console.log(settingsMenu)
 
     // Make timeline seekable
     timelineContainer.addEventListener('click', (evt) => {
@@ -292,7 +281,6 @@ class UI {
     uiEl.appendChild(uiContainer)
 
     this.onVideoElPlay = () => {
-      // console.log('play')
       hideElement(playButton)
       showElement(pauseButton)
     }
@@ -309,7 +297,6 @@ class UI {
       const percentageString = String(percentage)
       this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
 
-      //        console.log('Zeit',videoEl.currentTime,videoEl.duration, elmin, elsec, totmin, totsec)
       timelineElapsed.style.width = percentageString + '%'
     }
     videoEl.addEventListener('timeupdate', this.onVideoElTimeupdate)
