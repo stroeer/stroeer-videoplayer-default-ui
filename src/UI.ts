@@ -153,6 +153,9 @@ class UI {
     const timelineElapsed = document.createElement('div')
     const controlBar = document.createElement('div')
     const buttonsContainer = document.createElement('div')
+    const overlayContainer = document.createElement('div')
+    overlayContainer.className = 'video-overlay'
+    overlayContainer.appendChild(SVGHelper('play'))
     uiContainer.className = this.uiContainerClassName
     controlBar.className = 'controlbar'
     timelineContainer.className = 'timeline'
@@ -160,6 +163,7 @@ class UI {
     buttonsContainer.className = 'buttons'
     controlBar.appendChild(buttonsContainer)
     uiContainer.appendChild(controlBar)
+    uiContainer.appendChild(overlayContainer)
     uiEl.appendChild(uiContainer)
 
     // Create the Buttons
@@ -226,8 +230,12 @@ class UI {
     timeDisp.classList.add('time')
     timeDisp.innerHTML = '<div class="elapsed"><span class="min">00</span>:<span class="sec">00</span> /</div><div class="total"><span class="min">00</span>:<span class="sec">00</span></div>'
     controlBar.appendChild(timeDisp)
-    this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
+    //      console.log('timeUpdate',videoEl.duration,videoEl)
+    window.setTimeout(() => {
+      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
+    }, 100)
 
+    // Fullscreen Button
     const enterFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen',
       'Enter Fullscreen', 'enter-fullscreen', false,
       [{ name: 'click', callb: () => { rootEl.requestFullscreen() } }])
@@ -236,6 +244,7 @@ class UI {
       'Exit Fullscreen', 'exit-fullscreen', true,
       [{ name: 'click', callb: () => { document.exitFullscreen().then(noop).catch(noop) } }])
 
+    // Settings
     const settingsMenu = this.createSettingsMenu(StroeerVideoplayer)
     hideElement(settingsMenu)
 
@@ -274,6 +283,14 @@ class UI {
       }
     })
 
+    overlayContainer.addEventListener('click', (evt) => {
+      if (videoEl.paused === true) {
+        videoEl.play()
+      } else {
+        videoEl.pause()
+      }
+    })
+
     timelineContainer.appendChild(timelineElapsed)
     controlBar.appendChild(timelineContainer)
     controlBar.appendChild(buttonsContainer)
@@ -283,11 +300,13 @@ class UI {
     this.onVideoElPlay = () => {
       hideElement(playButton)
       showElement(pauseButton)
+      hideElement(overlayContainer)
     }
     videoEl.addEventListener('play', this.onVideoElPlay)
 
     this.onVideoElPause = () => {
       showElement(playButton)
+      showElement(overlayContainer)
       hideElement(pauseButton)
     }
     videoEl.addEventListener('pause', this.onVideoElPause)
