@@ -322,7 +322,7 @@ class UI {
     this.onVideoElTimeupdate = () => {
       const percentage = videoEl.currentTime / videoEl.duration * 100
       const percentageString = String(percentage)
-      //      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
+      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
 
       timelineElapsed.style.width = percentageString + '%'
     }
