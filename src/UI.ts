@@ -26,6 +26,7 @@ class UI {
   onDocumentFullscreenChange: Function
   onVideoElPlay: Function
   onVideoElPause: Function
+  onLoadedMetaData: Function
   onVideoElTimeupdate: Function
   onVideoElVolumeChange: Function
   isMouseDown: Boolean
@@ -39,6 +40,7 @@ class UI {
     this.onVideoElPause = noop
     this.onVideoElTimeupdate = noop
     this.onVideoElVolumeChange = noop
+    this.onLoadedMetaData = noop
     this.isMouseDown = false
 
     return this
@@ -62,9 +64,9 @@ class UI {
     el.appendChild(SVGHelper(svgid))
 
     if (ishidden) hideElement(el)
-    evts.forEach((value, index) => {
-      el.addEventListener(value.name, (ev) => { value.callb(ev) })
-    })
+    for (let i = 0; i < evts.length; i++) {
+      el.addEventListener(evts[i].name, (ev) => { evts[i].callb(ev) })
+    }
     buttonsContainer.appendChild(el)
     return el
   }
@@ -78,7 +80,9 @@ class UI {
     speedLine.classList.add('speedbox')
     const spdlneChoser = document.createElement('span')
     const speeds = [0.5, 1, 1.5, 2]
-    speeds.forEach((o, i) => {
+    //    speeds.forEach((o, i) => {
+    for (let i = 0; i < speeds.length; i++) {
+      const o = speeds[i]
       const opt = document.createElement('i')
       if (plr.playbackRate === o) opt.classList.add('selected')
       opt.innerHTML = o.toString()
@@ -92,7 +96,7 @@ class UI {
         hideElement(settingsMenu)
       })
       spdlneChoser.appendChild(opt)
-    })
+    }
     speedLine.innerHTML = 'Speed '
     speedLine.appendChild(spdlneChoser)
     settingsMenu.appendChild(speedLine)
@@ -103,7 +107,9 @@ class UI {
     settingsMenu.appendChild(qualCaption)
 
     const sources: NodeListOf<HTMLSourceElement> = plr.querySelectorAll('source')
-    sources.forEach((o, i) => {
+    for (let i = 0; i < sources.length; i++) {
+      //            sources.forEach((o, i) => {
+      const o = sources[i]
       const btn = document.createElement('button')
       btn.innerHTML = o.dataset.label ?? ''
       if (plr.currentSrc === o.src) btn.classList.add('selected')
@@ -115,7 +121,7 @@ class UI {
         plr.src = o.src ?? ''
       })
       settingsMenu.appendChild(btn)
-    })
+    }
     settingsMenu.classList.add('settingsmenu')
     controlBar.appendChild(settingsMenu)
     return settingsMenu
@@ -230,10 +236,6 @@ class UI {
     timeDisp.classList.add('time')
     timeDisp.innerHTML = '<div class="elapsed"><span class="min">00</span>:<span class="sec">00</span> /</div><div class="total"><span class="min">00</span>:<span class="sec">00</span></div>'
     controlBar.appendChild(timeDisp)
-    //      console.log('timeUpdate',videoEl.duration,videoEl)
-    window.setTimeout(() => {
-      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
-    }, 100)
 
     // Fullscreen Button
     const enterFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen',
@@ -311,10 +313,16 @@ class UI {
     }
     videoEl.addEventListener('pause', this.onVideoElPause)
 
+    videoEl.addEventListener('loadedmetadata', () => {
+      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
+    })
+
+    videoEl.load()
+
     this.onVideoElTimeupdate = () => {
       const percentage = videoEl.currentTime / videoEl.duration * 100
       const percentageString = String(percentage)
-      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
+      //      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
 
       timelineElapsed.style.width = percentageString + '%'
     }

@@ -1,3 +1,6 @@
+.stroeer-videoplayer .stroeer-videoplayer-ui {
+    top:0;
+}
 .stroeer-videoplayer .stroeer-videoplayer-ui .default {
 	position: relative;
 	z-index: 200;
@@ -58,7 +61,7 @@
 		}
                 .time {
 	            position: absolute;
-	            left: 260px;
+	            left: 255px;
 	            bottom: 17px;
 	            color: #fff;
 	            font-size: 12px;
