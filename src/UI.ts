@@ -114,11 +114,22 @@ class UI {
       btn.innerHTML = o.dataset.label ?? ''
       if (plr.currentSrc === o.src) btn.classList.add('selected')
       btn.addEventListener('click', (ev) => {
+        const playstate = plr.paused
+        const elapsedTime = plr.currentTime
         const selects = settingsMenu.querySelector('button.selected')
         if (selects !== null) selects.classList.remove('selected')
         btn.classList.add('selected')
         hideElement(settingsMenu)
         plr.src = o.src ?? ''
+        const callb = (): void => {
+          plr.removeEventListener('loadeddata', callb)
+          plr.currentTime = elapsedTime
+          if (playstate === false) plr.play()
+        }
+        if (elapsedTime > 0) {
+          plr.addEventListener('loadeddata', callb)
+          plr.load()
+        }
       })
       settingsMenu.appendChild(btn)
     }
@@ -240,7 +251,24 @@ class UI {
     // Fullscreen Button
     const enterFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen',
       'Enter Fullscreen', 'enter-fullscreen', false,
-      [{ name: 'click', callb: () => { rootEl.requestFullscreen() } }])
+      [{
+        name: 'click',
+        callb: () => {
+          if (typeof videoEl.requestFullscreen === 'function') {
+            videoEl.requestFullscreen()
+          } else if (typeof videoEl.webkitRequestFullscreen === 'function') {
+            videoEl.webkitRequestFullscreen()
+          } else if (typeof videoEl.mozRequestFullScreen === 'function') {
+            videoEl.mozRequestFullScreen()
+          } else if (typeof videoEl.msRequestFullscreen === 'function') {
+            videoEl.msRequestFullscreen()
+          } else if (typeof videoEl.webkitEnterFullscreen === 'function') {
+            videoEl.webkitEnterFullscreen()
+          } else {
+            console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
+          }
+        }
+      }])
 
     const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen',
       'Exit Fullscreen', 'exit-fullscreen', true,
