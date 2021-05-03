@@ -9,6 +9,23 @@ interface IStroeerVideoplayer {
   getVideoEl: Function
 }
 
+declare global {
+  interface Document {
+    mozCancelFullScreen?: () => Promise<void>
+    msExitFullscreen?: () => void
+    webkitExitFullscreen?: () => void
+    mozFullScreenElement?: Element
+    msFullscreenElement?: Element
+    webkitFullscreenElement?: Element
+  }
+
+  interface HTMLElement {
+    msRequestFullscreen?: () => Promise<void>
+    mozRequestFullscreen?: () => Promise<void>
+    webkitRequestFullscreen?: () => Promise<void>
+  }
+}
+
 const hideElement = (element: HTMLElement): void => {
   element.classList.add('hidden')
   element.setAttribute('aria-hidden', 'true')
@@ -65,7 +82,10 @@ class UI {
 
     if (ishidden) hideElement(el)
     for (let i = 0; i < evts.length; i++) {
-      el.addEventListener(evts[i].name, (ev) => { evts[i].callb(ev) })
+      el.addEventListener(evts[i].name, (ev) => {
+        console.log('pressing icon', i)
+        evts[i].callb(ev)
+      })
     }
     buttonsContainer.appendChild(el)
     return el
@@ -108,7 +128,6 @@ class UI {
 
     const sources: NodeListOf<HTMLSourceElement> = plr.querySelectorAll('source')
     for (let i = 0; i < sources.length; i++) {
-      //            sources.forEach((o, i) => {
       const o = sources[i]
       const btn = document.createElement('button')
       btn.innerHTML = o.dataset.label ?? ''
@@ -254,14 +273,16 @@ class UI {
       [{
         name: 'click',
         callb: () => {
-          if (typeof videoEl.requestFullscreen === 'function') {
-            videoEl.requestFullscreen()
-          } else if (typeof videoEl.webkitRequestFullscreen === 'function') {
-            videoEl.webkitRequestFullscreen()
-          } else if (typeof videoEl.mozRequestFullScreen === 'function') {
-            videoEl.mozRequestFullScreen()
-          } else if (typeof videoEl.msRequestFullscreen === 'function') {
-            videoEl.msRequestFullscreen()
+          if (typeof rootEl.requestFullscreen === 'function') {
+            rootEl.requestFullscreen()
+          } else if (typeof rootEl.webkitRequestFullscreen === 'function') {
+            rootEl.webkitRequestFullscreen()
+          } else if (typeof rootEl.mozRequestFullScreen === 'function') {
+            rootEl.mozRequestFullScreen()
+          } else if (typeof rootEl.msRequestFullscreen === 'function') {
+            rootEl.msRequestFullscreen()
+          } else if (typeof rootEl.webkitEnterFullscreen === 'function') {
+            rootEl.webkitEnterFullscreen()
           } else if (typeof videoEl.webkitEnterFullscreen === 'function') {
             videoEl.webkitEnterFullscreen()
           } else {
@@ -270,9 +291,25 @@ class UI {
         }
       }])
 
-    const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen',
-      'Exit Fullscreen', 'exit-fullscreen', true,
-      [{ name: 'click', callb: () => { document.exitFullscreen().then(noop).catch(noop) } }])
+    const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'exit-fullscreen', true,
+      [{
+        name: 'click',
+        callb: () => {
+          if (typeof document.exitFullscreen === 'function') {
+            document.exitFullscreen().then(noop).catch(noop)
+          } else if (typeof document.webkitExitFullscreen === 'function') {
+            document.webkitExitFullscreen()
+          } else if (typeof document.mozCancelFullScreen === 'function') {
+            document.mozCancelFullScreen().then(noop).catch(noop)
+          } else if (typeof document.msExitFullscreen === 'function') {
+            document.msExitFullscreen()
+          } else if (typeof videoEl.webkitExitFullscreen === 'function') {
+            videoEl.webkitExitFullscreen()
+          } else {
+            console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
+          }
+        }
+      }])
 
     // Settings
     const settingsMenu = this.createSettingsMenu(StroeerVideoplayer)
@@ -368,6 +405,7 @@ class UI {
     videoEl.addEventListener('volumechange', this.onVideoElVolumeChange)
 
     this.onDocumentFullscreenChange = () => {
+      console.log('onDocumentFullscreenChange')
       if (document.fullscreenElement === rootEl) {
         hideElement(enterFullscreenButton)
         showElement(exitFullscreenButton)
@@ -376,8 +414,40 @@ class UI {
         hideElement(exitFullscreenButton)
       }
     }
+
     // @ts-expect-error
     document.addEventListener('fullscreenchange', this.onDocumentFullscreenChange)
+
+    // iOS Workarounds
+    videoEl.addEventListener('webkitendfullscreen', function () {
+    // @ts-expect-error
+      document.fullscreenElement = null
+      showElement(enterFullscreenButton)
+      hideElement(exitFullscreenButton)
+    })
+    document.addEventListener('webkitfullscreenchange', function () {
+      console.log('webkitfullscreenchange', document.fullscreenElement, document.webkitFullscreenElement)
+      if (document.webkitFullscreenElement !== null) {
+        showElement(exitFullscreenButton)
+        hideElement(enterFullscreenButton)
+      } else {
+        showElement(enterFullscreenButton)
+        hideElement(exitFullscreenButton)
+      }
+    })
+
+    // IE11 workaround
+    document.addEventListener('MSFullscreenChange', function () {
+      console.log('MSFullscreenChange', document.fullscreenElement, document.msFullscreenElement)
+      if (document.msFullscreenElement !== null) {
+        console.log('fullscreenElement = null')
+        showElement(exitFullscreenButton)
+        hideElement(enterFullscreenButton)
+      } else {
+        hideElement(exitFullscreenButton)
+        showElement(enterFullscreenButton)
+      }
+    })
   }
 
   deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {
