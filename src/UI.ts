@@ -9,6 +9,23 @@ interface IStroeerVideoplayer {
   getVideoEl: Function
 }
 
+declare global {
+  interface Document {
+    mozCancelFullScreen?: () => Promise<void>
+    msExitFullscreen?: () => void
+    webkitExitFullscreen?: () => void
+    mozFullScreenElement?: Element
+    msFullscreenElement?: Element
+    webkitFullscreenElement?: Element
+  }
+
+  interface HTMLElement {
+    msRequestFullscreen?: () => Promise<void>
+    mozRequestFullscreen?: () => Promise<void>
+    webkitRequestFullscreen?: () => Promise<void>
+  }
+}
+
 const hideElement = (element: HTMLElement): void => {
   element.classList.add('hidden')
   element.setAttribute('aria-hidden', 'true')
@@ -26,6 +43,7 @@ class UI {
   onDocumentFullscreenChange: Function
   onVideoElPlay: Function
   onVideoElPause: Function
+  onLoadedMetaData: Function
   onVideoElTimeupdate: Function
   onVideoElVolumeChange: Function
   isMouseDown: Boolean
@@ -39,6 +57,7 @@ class UI {
     this.onVideoElPause = noop
     this.onVideoElTimeupdate = noop
     this.onVideoElVolumeChange = noop
+    this.onLoadedMetaData = noop
     this.isMouseDown = false
 
     return this
@@ -62,9 +81,11 @@ class UI {
     el.appendChild(SVGHelper(svgid))
 
     if (ishidden) hideElement(el)
-    evts.forEach((value, index) => {
-      el.addEventListener(value.name, (ev) => { value.callb(ev) })
-    })
+    for (let i = 0; i < evts.length; i++) {
+      el.addEventListener(evts[i].name, (ev) => {
+        evts[i].callb(ev)
+      })
+    }
     buttonsContainer.appendChild(el)
     return el
   }
@@ -78,7 +99,9 @@ class UI {
     speedLine.classList.add('speedbox')
     const spdlneChoser = document.createElement('span')
     const speeds = [0.5, 1, 1.5, 2]
-    speeds.forEach((o, i) => {
+    //    speeds.forEach((o, i) => {
+    for (let i = 0; i < speeds.length; i++) {
+      const o = speeds[i]
       const opt = document.createElement('i')
       if (plr.playbackRate === o) opt.classList.add('selected')
       opt.innerHTML = o.toString()
@@ -92,7 +115,7 @@ class UI {
         hideElement(settingsMenu)
       })
       spdlneChoser.appendChild(opt)
-    })
+    }
     speedLine.innerHTML = 'Speed '
     speedLine.appendChild(spdlneChoser)
     settingsMenu.appendChild(speedLine)
@@ -103,19 +126,31 @@ class UI {
     settingsMenu.appendChild(qualCaption)
 
     const sources: NodeListOf<HTMLSourceElement> = plr.querySelectorAll('source')
-    sources.forEach((o, i) => {
+    for (let i = 0; i < sources.length; i++) {
+      const o = sources[i]
       const btn = document.createElement('button')
       btn.innerHTML = o.dataset.label ?? ''
       if (plr.currentSrc === o.src) btn.classList.add('selected')
       btn.addEventListener('click', (ev) => {
+        const playstate = plr.paused
+        const elapsedTime = plr.currentTime
         const selects = settingsMenu.querySelector('button.selected')
         if (selects !== null) selects.classList.remove('selected')
         btn.classList.add('selected')
         hideElement(settingsMenu)
         plr.src = o.src ?? ''
+        const callb = (): void => {
+          plr.removeEventListener('loadeddata', callb)
+          plr.currentTime = elapsedTime
+          if (playstate === false) plr.play()
+        }
+        if (elapsedTime > 0) {
+          plr.addEventListener('loadeddata', callb)
+          plr.load()
+        }
       })
       settingsMenu.appendChild(btn)
-    })
+    }
     settingsMenu.classList.add('settingsmenu')
     controlBar.appendChild(settingsMenu)
     return settingsMenu
@@ -153,6 +188,9 @@ class UI {
     const timelineElapsed = document.createElement('div')
     const controlBar = document.createElement('div')
     const buttonsContainer = document.createElement('div')
+    const overlayContainer = document.createElement('div')
+    overlayContainer.className = 'video-overlay'
+    overlayContainer.appendChild(SVGHelper('play'))
     uiContainer.className = this.uiContainerClassName
     controlBar.className = 'controlbar'
     timelineContainer.className = 'timeline'
@@ -160,6 +198,7 @@ class UI {
     buttonsContainer.className = 'buttons'
     controlBar.appendChild(buttonsContainer)
     uiContainer.appendChild(controlBar)
+    uiContainer.appendChild(overlayContainer)
     uiEl.appendChild(uiContainer)
 
     // Create the Buttons
@@ -226,16 +265,56 @@ class UI {
     timeDisp.classList.add('time')
     timeDisp.innerHTML = '<div class="elapsed"><span class="min">00</span>:<span class="sec">00</span> /</div><div class="total"><span class="min">00</span>:<span class="sec">00</span></div>'
     controlBar.appendChild(timeDisp)
-    this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
 
+    // Fullscreen Button
     const enterFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen',
       'Enter Fullscreen', 'enter-fullscreen', false,
-      [{ name: 'click', callb: () => { rootEl.requestFullscreen() } }])
+      [{
+        name: 'click',
+        callb: () => {
+          if (typeof rootEl.requestFullscreen === 'function') {
+            rootEl.requestFullscreen()
+          } else if (typeof rootEl.webkitRequestFullscreen === 'function') {
+            if (navigator.userAgent.includes('iPad')) {
+              videoEl.webkitRequestFullscreen()
+            } else {
+              rootEl.webkitRequestFullscreen()
+            }
+          } else if (typeof rootEl.mozRequestFullScreen === 'function') {
+            rootEl.mozRequestFullScreen()
+          } else if (typeof rootEl.msRequestFullscreen === 'function') {
+            rootEl.msRequestFullscreen()
+          } else if (typeof rootEl.webkitEnterFullscreen === 'function') {
+            rootEl.webkitEnterFullscreen()
+          } else if (typeof videoEl.webkitEnterFullscreen === 'function') {
+            videoEl.webkitEnterFullscreen()
+          } else {
+            console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
+          }
+        }
+      }])
 
-    const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen',
-      'Exit Fullscreen', 'exit-fullscreen', true,
-      [{ name: 'click', callb: () => { document.exitFullscreen().then(noop).catch(noop) } }])
+    const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'exit-fullscreen', true,
+      [{
+        name: 'click',
+        callb: () => {
+          if (typeof document.exitFullscreen === 'function') {
+            document.exitFullscreen().then(noop).catch(noop)
+          } else if (typeof document.webkitExitFullscreen === 'function') {
+            document.webkitExitFullscreen()
+          } else if (typeof document.mozCancelFullScreen === 'function') {
+            document.mozCancelFullScreen().then(noop).catch(noop)
+          } else if (typeof document.msExitFullscreen === 'function') {
+            document.msExitFullscreen()
+          } else if (typeof videoEl.webkitExitFullscreen === 'function') {
+            videoEl.webkitExitFullscreen()
+          } else {
+            console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
+          }
+        }
+      }])
 
+    // Settings
     const settingsMenu = this.createSettingsMenu(StroeerVideoplayer)
     hideElement(settingsMenu)
 
@@ -274,6 +353,14 @@ class UI {
       }
     })
 
+    overlayContainer.addEventListener('click', (evt) => {
+      if (videoEl.paused === true) {
+        videoEl.play()
+      } else {
+        videoEl.pause()
+      }
+    })
+
     timelineContainer.appendChild(timelineElapsed)
     controlBar.appendChild(timelineContainer)
     controlBar.appendChild(buttonsContainer)
@@ -283,14 +370,22 @@ class UI {
     this.onVideoElPlay = () => {
       hideElement(playButton)
       showElement(pauseButton)
+      hideElement(overlayContainer)
     }
     videoEl.addEventListener('play', this.onVideoElPlay)
 
     this.onVideoElPause = () => {
       showElement(playButton)
+      showElement(overlayContainer)
       hideElement(pauseButton)
     }
     videoEl.addEventListener('pause', this.onVideoElPause)
+
+    videoEl.addEventListener('loadedmetadata', () => {
+      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
+    })
+
+    videoEl.load()
 
     this.onVideoElTimeupdate = () => {
       const percentage = videoEl.currentTime / videoEl.duration * 100
@@ -321,8 +416,37 @@ class UI {
         hideElement(exitFullscreenButton)
       }
     }
+
     // @ts-expect-error
     document.addEventListener('fullscreenchange', this.onDocumentFullscreenChange)
+
+    // iOS Workarounds
+    videoEl.addEventListener('webkitendfullscreen', function () {
+    // @ts-expect-error
+      document.fullscreenElement = null
+      showElement(enterFullscreenButton)
+      hideElement(exitFullscreenButton)
+    })
+    document.addEventListener('webkitfullscreenchange', function () {
+      if (document.webkitFullscreenElement !== null) {
+        showElement(exitFullscreenButton)
+        hideElement(enterFullscreenButton)
+      } else {
+        showElement(enterFullscreenButton)
+        hideElement(exitFullscreenButton)
+      }
+    })
+
+    // IE11 workaround
+    document.addEventListener('MSFullscreenChange', function () {
+      if (document.msFullscreenElement !== null) {
+        showElement(exitFullscreenButton)
+        hideElement(enterFullscreenButton)
+      } else {
+        hideElement(exitFullscreenButton)
+        showElement(enterFullscreenButton)
+      }
+    })
   }
 
   deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {
