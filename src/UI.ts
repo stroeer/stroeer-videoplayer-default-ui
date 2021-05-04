@@ -83,7 +83,6 @@ class UI {
     if (ishidden) hideElement(el)
     for (let i = 0; i < evts.length; i++) {
       el.addEventListener(evts[i].name, (ev) => {
-        console.log('pressing icon', i)
         evts[i].callb(ev)
       })
     }
@@ -276,7 +275,11 @@ class UI {
           if (typeof rootEl.requestFullscreen === 'function') {
             rootEl.requestFullscreen()
           } else if (typeof rootEl.webkitRequestFullscreen === 'function') {
-            rootEl.webkitRequestFullscreen()
+            if (navigator.userAgent.includes('iPad')) {
+              videoEl.webkitRequestFullscreen()
+            } else {
+              rootEl.webkitRequestFullscreen()
+            }
           } else if (typeof rootEl.mozRequestFullScreen === 'function') {
             rootEl.mozRequestFullScreen()
           } else if (typeof rootEl.msRequestFullscreen === 'function') {
@@ -405,7 +408,6 @@ class UI {
     videoEl.addEventListener('volumechange', this.onVideoElVolumeChange)
 
     this.onDocumentFullscreenChange = () => {
-      console.log('onDocumentFullscreenChange')
       if (document.fullscreenElement === rootEl) {
         hideElement(enterFullscreenButton)
         showElement(exitFullscreenButton)
@@ -426,7 +428,6 @@ class UI {
       hideElement(exitFullscreenButton)
     })
     document.addEventListener('webkitfullscreenchange', function () {
-      console.log('webkitfullscreenchange', document.fullscreenElement, document.webkitFullscreenElement)
       if (document.webkitFullscreenElement !== null) {
         showElement(exitFullscreenButton)
         hideElement(enterFullscreenButton)
@@ -438,9 +439,7 @@ class UI {
 
     // IE11 workaround
     document.addEventListener('MSFullscreenChange', function () {
-      console.log('MSFullscreenChange', document.fullscreenElement, document.msFullscreenElement)
       if (document.msFullscreenElement !== null) {
-        console.log('fullscreenElement = null')
         showElement(exitFullscreenButton)
         hideElement(enterFullscreenButton)
       } else {
