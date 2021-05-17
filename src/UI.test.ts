@@ -9,6 +9,14 @@ const pauseStub = jest
   .spyOn(window.HTMLMediaElement.prototype, 'pause')
   .mockImplementation(() => { })
 
+Object.defineProperty(global.window.HTMLMediaElement.prototype, 'load', {
+  configurable: true,
+  // Define the property getter
+  get () {
+    return () => {}
+  }
+})
+
 afterEach(() => {
   playStub.mockClear()
   pauseStub.mockClear()
