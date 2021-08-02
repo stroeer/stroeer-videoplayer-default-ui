@@ -1,5 +1,8 @@
+.stroeer-videoplayer video {
+    border-radius: 5px;
+}
 .stroeer-videoplayer .stroeer-videoplayer-ui {
-    top:0;
+    top: 0;
 }
 .stroeer-videoplayer .stroeer-videoplayer-ui .default {
 	position: relative;
@@ -35,25 +38,29 @@
 	        cursor: pointer;
             }
         }
-	.controlbar {
-		&:hover {
-			bottom: 0;
-			.timeline {
-				height: 16px;
-			}
-		}
-		bottom: -56px;
-		height: 64px;
+	.controlbar-container {
+		bottom: 0;
+		padding-bottom: 5px;
+		height: 40px;
 		transition: all ease-in 0.2s;
 		position: absolute;
 		z-index: 300;
 		width: 100%;
+		background: rgb(0,0,0);
+		background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.1) 100%);
+		border-bottom-right-radius: 5px;
+		border-bottom-left-radius: 5px;
+	}
+	.controlbar {
+		margin: 0 auto;
+		position: relative;
+		width: 95%;
 		.timeline {
 			display: block;
-			height: 8px;
+			height: 2px;
 			background-color: rgba(255, 255, 255, .5);
 			.elapsed {
-				background-color: rgb(255, 255, 255);
+				background-color: #E20074;
 				width: 0;
 				height: 100%;
 				user-select: none;
@@ -61,74 +68,24 @@
 		}
                 .time {
 	            position: absolute;
-	            left: 255px;
-	            bottom: 17px;
+	            left: 96px;
+	            bottom: 4px;
 	            color: #fff;
 	            font-size: 12px;
+		    font-family: Roboto, Arial, Helvetica, sans-serif;
                     >div {
 	                display: inline-block;
 	                margin: 0 2px;
-                    }
-                }
-                .volSliderBox {
-	            width: 140px;
-	            height: 20px;
-	            position: absolute;
-	            left: 105px;
-	            bottom: 5px;
-	            /*background: #fcc;*/
-	            height: 40px;
-                    i {
-	                width: 100%;
-	                height: 10px;
-	                display: block;
-	                position: absolute;
-	                left: 0;
-	                top: 16px;
-	                background: rgba(0,0,0,0.5);
-	                border-radius: 3px;
-	                overflow: visible;
-                        cursor: pointer;
-                        s {
-	                    display: block;
-	                    position: absolute;
-	                    height: 100%;
-	                    width: 100%;
-	                    background: #fff;
-                            overflow: visible;
-                            border-radius: 3px;
-                            &:after {
-	                        content: " ";
-	                        width: 15px;
-	                        height: 15px;
-	                        display: block;
-	                        position: absolute;
-	                        right: -7px;
-	                        top: -2px;
-	                        border-radius: 7px;
-	                        color: #fff;
-	                        color: #e20074;
-	                        z-index: 10;
-	                        background: #e20074;
-                                box-shadow: 0 0 5px #e20074;
-                            }
-                        }
                     }
                 }
                 @media screen and (max-width: 450px) {
                     .volSliderBox {
 	                width: 120px;
                     }
-                    .time {
-	                left: 250px;
-                    }
                 }
                 @media screen and (max-width: 380px) {
                     .volSliderBox {
 	                width: 100px;
-                    }
-                    .time {
-	                left: 220px;
                     }
                 }
                 @media screen and (max-width: 360px) {
@@ -136,23 +93,17 @@
 	                width: 80px;
 	                left: 110px;
                     }
-                    .time {
-	                left: 200px;
-                    }
                 }
                 @media screen and (max-width: 340px) {
                     .volSliderBox {
 	                width: 60px;
 	                left: 100px;
                     }
-                    .time {
-	                left: 170px;
-                    }
                 }
                 .settingsmenu {
 	            position: absolute;
 	            right: 0;
-	            bottom: 48px;
+	            bottom: 32px;
 	            background: rgba(0,0,0,0.5);
                     color: #fff;
 		    &.hidden {
@@ -203,6 +154,9 @@
                         cursor: pointer;
                         &:hover {
 	                    background: rgba(98, 0, 46, 0.7);
+			    svg {
+				    fill: red;
+			    }
                         }
                         &.selected {
 	                    background: #e20074;
@@ -213,12 +167,11 @@
                 }
                 .buttons {
 			display: block;
-			height: 48px;
-			background-color: rgba(0, 0 , 0, .5);
+			height: 32px;
 			button {
-				margin: 2px;
-				border: 1px solid #000;
-				border-radius: 5px;
+				border: 0 none;
+				margin: 4px 0;
+				padding: 4px 8px;
 				background-color: transparent;
 				&:hover {
 					background-color: rgba(255, 255 , 255, .5);
@@ -226,13 +179,10 @@
 				&.hidden {
 					display: none;
 				}
-				padding: 8px;
-				height: 44px;
-				width: 44px;
 				svg {
 					fill: #fff;
-					height: 28px;
-					width: 28px;
+					height: 24px;
+					width: 24px;
 				}
 			}
                         .settings,.enterFullscreen,.exitFullscreen {

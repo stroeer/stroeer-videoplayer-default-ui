@@ -1,5 +1,5 @@
 import { version } from '../package.json'
-import UIIcons from './svg/icons.svg'
+import UIIcons from './sprites/svg/sprite.symbol.svg'
 import noop from './noop'
 import SVGHelper from './SVGHelper'
 
@@ -190,7 +190,7 @@ class UI {
     const buttonsContainer = document.createElement('div')
     const overlayContainer = document.createElement('div')
     overlayContainer.className = 'video-overlay'
-    overlayContainer.appendChild(SVGHelper('play'))
+    overlayContainer.appendChild(SVGHelper('Icon-Play'))
     uiContainer.className = this.uiContainerClassName
     controlBar.className = 'controlbar'
     timelineContainer.className = 'timeline'
@@ -202,63 +202,20 @@ class UI {
     uiEl.appendChild(uiContainer)
 
     // Create the Buttons
-    const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'play', false,
+    const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', false,
       [{ name: 'click', callb: () => { videoEl.play() } }])
 
-    this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'replay', true,
+    this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'Icon-Replay', true,
       [{ name: 'click', callb: () => { videoEl.play() } }])
 
-    const pauseButton = this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'pause', videoEl.paused,
+    const pauseButton = this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'Icon-Pause', videoEl.paused,
       [{ name: 'click', callb: () => { videoEl.pause() } }])
 
-    const muteButton = this.createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'volume', videoEl.muted,
+    const muteButton = this.createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'Icon-Volume', videoEl.muted,
       [{ name: 'click', callb: () => { videoEl.muted = true } }])
 
-    const unmuteButton = this.createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'muted', true,
+    const unmuteButton = this.createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'Icon-Mute', true,
       [{ name: 'click', callb: () => { videoEl.muted = false } }])
-
-    // Volume slider
-    const volSlider = document.createElement('div')
-    volSlider.classList.add('volSliderBox')
-    volSlider.innerHTML = '<i><s></s></i>'
-    const aktVolPos = (aktx: number): void => {
-      const clickX = aktx
-      let percentClick = Math.floor(100 / volSlider.clientWidth * clickX)
-      const inner = volSlider.querySelector('s')
-      if (percentClick <= 0) {
-        videoEl.muted = true
-        percentClick = 0
-      } else {
-        videoEl.muted = false
-        if (percentClick > 100) percentClick = 100
-      }
-      if (inner !== null) inner.style.width = percentClick.toString() + '%'
-      videoEl.volume = percentClick / 100
-    }
-    volSlider.addEventListener('mousedown', (evt) => {
-      aktVolPos(evt.offsetX)
-      this.isMouseDown = true
-    })
-    volSlider.addEventListener('touchstart', (evt) => {
-      aktVolPos(evt.targetTouches[0].pageX)
-      this.isMouseDown = true
-    })
-    volSlider.addEventListener('mouseup', (evt) => {
-      this.isMouseDown = false
-    })
-    volSlider.addEventListener('mouseleave', (evt) => {
-      this.isMouseDown = false
-    })
-    volSlider.addEventListener('touchend', (evt) => {
-      this.isMouseDown = false
-    })
-    volSlider.addEventListener('mousemove', (evt) => {
-      if (this.isMouseDown === true) aktVolPos(evt.offsetX)
-    })
-    volSlider.addEventListener('touchmove', (evt) => {
-      if (this.isMouseDown === true) aktVolPos(evt.targetTouches[0].pageX)
-    })
-    controlBar.appendChild(volSlider)
 
     // Time Display
     const timeDisp = document.createElement('div')
@@ -268,7 +225,7 @@ class UI {
 
     // Fullscreen Button
     const enterFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen',
-      'Enter Fullscreen', 'enter-fullscreen', false,
+      'Enter Fullscreen', 'Icon-Fullscreen', false,
       [{
         name: 'click',
         callb: () => {
@@ -294,7 +251,7 @@ class UI {
         }
       }])
 
-    const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'exit-fullscreen', true,
+    const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', true,
       [{
         name: 'click',
         callb: () => {
@@ -318,7 +275,7 @@ class UI {
     const settingsMenu = this.createSettingsMenu(StroeerVideoplayer)
     hideElement(settingsMenu)
 
-    this.createButton(StroeerVideoplayer, 'button', 'settings', 'Settings', 'settings', false,
+    this.createButton(StroeerVideoplayer, 'button', 'settings', 'Settings', 'Icon-Settings', false,
       [{
         name: 'click',
         callb: () => {
@@ -364,7 +321,12 @@ class UI {
     timelineContainer.appendChild(timelineElapsed)
     controlBar.appendChild(timelineContainer)
     controlBar.appendChild(buttonsContainer)
-    uiContainer.appendChild(controlBar)
+
+    const controlBarContainer = document.createElement('div')
+    controlBarContainer.classList.add('controlbar-container')
+
+    controlBarContainer.appendChild(controlBar)
+    uiContainer.appendChild(controlBarContainer)
     uiEl.appendChild(uiContainer)
 
     this.onVideoElPlay = () => {

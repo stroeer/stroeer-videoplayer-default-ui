@@ -5,7 +5,7 @@ export default function SVGHelper (type: string, opts?: any): SVGElement {
   opts.svgAttributes.push(['focusable', 'false'])
 
   const namespace = 'http://www.w3.org/2000/svg'
-  const iconPrefix = 'slvjs'
+  const iconPrefix = ''
   const iconPath = '#' + iconPrefix
   const icon = document.createElementNS(namespace, 'svg')
 
@@ -14,7 +14,7 @@ export default function SVGHelper (type: string, opts?: any): SVGElement {
   })
 
   const use = document.createElementNS(namespace, 'use')
-  const path = iconPath + '-' + type
+  const path = iconPath + type
 
   if ('href' in use) {
     use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', path)
