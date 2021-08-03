@@ -286,7 +286,6 @@ class UI {
 
     setInterval(toggleControlbarTicker, 1000)
 
-
     this.onVideoElPlay = () => {
       hideElement(playButton)
       showElement(pauseButton)
