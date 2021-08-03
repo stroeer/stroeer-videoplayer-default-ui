@@ -56,6 +56,7 @@
 		position: relative;
 		width: 95%;
 		.timeline {
+			transition: all ease-in 0.2s;
 			display: block;
 			height: 2px;
 			background-color: rgba(255, 255, 255, .5);
@@ -64,6 +65,25 @@
 				width: 0;
 				height: 100%;
 				user-select: none;
+			}
+			&:hover {
+				height: 8px;
+				margin-top: -6px;
+				.elapsed-bubble {
+					top: -5px;
+					margin-left: -5px;
+					width: 17px;
+					height: 17px;
+				}
+			}
+			.elapsed-bubble {
+				transition: height ease-in 0.2s, width ease-in 0.2s, top ease-in 0.2s, margin-left ease-in 0.2s;
+				position: absolute;
+				width: 9px;
+				height: 9px;
+				background-color: #E20074;
+				top: -4px;
+				border-radius: 50%;
 			}
 		}
                 .time {
@@ -76,93 +96,6 @@
                     >div {
 	                display: inline-block;
 	                margin: 0 2px;
-                    }
-                }
-                @media screen and (max-width: 450px) {
-                    .volSliderBox {
-	                width: 120px;
-                    }
-                }
-                @media screen and (max-width: 380px) {
-                    .volSliderBox {
-	                width: 100px;
-                    }
-                }
-                @media screen and (max-width: 360px) {
-                    .volSliderBox {
-	                width: 80px;
-	                left: 110px;
-                    }
-                }
-                @media screen and (max-width: 340px) {
-                    .volSliderBox {
-	                width: 60px;
-	                left: 100px;
-                    }
-                }
-                .settingsmenu {
-	            position: absolute;
-	            right: 0;
-	            bottom: 32px;
-	            background: rgba(0,0,0,0.5);
-                    color: #fff;
-		    &.hidden {
-			display: none;
-		    }
-                    .speedbox {
-                        font-weight: bold;
-                        font-size: 16px;
-                        padding:5px;
-                        i {
-                            font-size:14px;
-                            font-weight: normal;
-                            display: inline-block;
-                            width: 30px;
-                            height:20px;
-                            cursor: pointer;
-                            text-align: center;
-                            background: rgba(0,0,0,0.5);
-                            border-radius: 3px;
-	                    margin: 5px;
-                            line-height: 20px;
-                            font-style: normal;
-                            &:hover {
-	                        background: rgba(98, 0, 46, 0.7);
-                            }
-                            &.selected {
-	                        background: #e20074;
-	                        color: #fff;
-                                cursor: default;
-                            }
-                        }
-                    }
-                    h2 {
-                        font-size: 16px;
-                        font-weight: bold;
-                        padding:5px;
-                        margin: 0;
-                        display: inline-block;
-                    }
-                    button {
-	                display: inline-block;
-	                border: 0;
-	                background: rgba(0,0,0,0.5);
-	                color: #fff;
-	                line-height: 20px;
-	                margin: 5px;
-                        border-radius: 3px;
-                        cursor: pointer;
-                        &:hover {
-	                    background: rgba(98, 0, 46, 0.7);
-			    svg {
-				    fill: red;
-			    }
-                        }
-                        &.selected {
-	                    background: #e20074;
-	                    color: #fff;
-                            cursor: default;
-                        }
                     }
                 }
                 .buttons {
@@ -185,13 +118,39 @@
 					width: 24px;
 				}
 			}
-                        .settings,.enterFullscreen,.exitFullscreen {
+                        .enterFullscreen,
+			.exitFullscreen {
 	                    position: absolute;
-	                    right: 50px;
-                        }
-                        .settings {
 	                    right: 0;
                         }
 		}
+	}
+	@media screen and (max-width: 450px) {
+	    .video-overlay svg  {
+		  width: 200px;
+		  height: 50px;
+		  margin-left: -100px;
+		  margin-top: -50px;
+	    }
+	}
+	@media screen and (max-width: 380px) {
+	    .video-overlay svg  {
+		  width: 200px;
+		  height: 50px;
+		  margin-left: -100px;
+		  margin-top: -50px;
+	    }
+	}
+	@media screen and (max-width: 360px) {
+	    .volSliderBox {
+		width: 80px;
+		left: 110px;
+	    }
+	}
+	@media screen and (max-width: 340px) {
+	    .volSliderBox {
+		width: 60px;
+		left: 100px;
+	    }
 	}
 }
