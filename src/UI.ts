@@ -122,6 +122,8 @@ class UI {
     }
 
     const uiContainer = document.createElement('div')
+    const loadingSpinnerContainer = document.createElement('div')
+    const loadingSpinnerAnimation = document.createElement('div')
     const timelineContainer = document.createElement('div')
     const timelineElapsed = document.createElement('div')
     const timelineElapsedBubble = document.createElement('div')
@@ -131,6 +133,10 @@ class UI {
     overlayContainer.className = 'video-overlay'
     overlayContainer.appendChild(SVGHelper('Icon-Play'))
     uiContainer.className = this.uiContainerClassName
+    loadingSpinnerContainer.className = 'loading-spinner'
+    hideElement(loadingSpinnerContainer)
+    loadingSpinnerAnimation.className = 'animation'
+    loadingSpinnerContainer.appendChild(loadingSpinnerAnimation)
     controlBar.className = 'controlbar'
     timelineContainer.className = 'timeline'
     timelineElapsed.className = 'elapsed'
@@ -139,7 +145,33 @@ class UI {
     controlBar.appendChild(buttonsContainer)
     uiContainer.appendChild(controlBar)
     uiContainer.appendChild(overlayContainer)
+    uiContainer.appendChild(loadingSpinnerContainer)
     uiEl.appendChild(uiContainer)
+
+    const showLoading = (modus: boolean): void => {
+      if (modus) {
+        showElement(loadingSpinnerContainer)
+      } else {
+        hideElement(loadingSpinnerContainer)
+      }
+    }
+
+    // @ts-expect-error
+    StroeerVideoplayer.loading = (modus: boolean): void => {
+      showLoading(modus)
+    }
+
+    videoEl.addEventListener('waiting', () => {
+      showLoading(true)
+    })
+
+    videoEl.addEventListener('canplay', () => {
+      showLoading(false)
+    })
+
+    videoEl.addEventListener('playing', () => {
+      showLoading(false)
+    })
 
     // Create the Buttons
     const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', false,
