@@ -145,7 +145,7 @@ class UI {
     const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', false,
       [{ name: 'click', callb: () => { videoEl.play() } }])
 
-    this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'Icon-Replay', true,
+    const replayButton = this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'Icon-Replay', true,
       [{ name: 'click', callb: () => { videoEl.play() } }])
 
     const pauseButton = this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'Icon-Pause', videoEl.paused,
@@ -163,6 +163,7 @@ class UI {
     timeDisp.innerHTML = '<div class="elapsed"><span class="min">00</span>:<span class="sec">00</span> /</div><div class="total"><span class="min">00</span>:<span class="sec">00</span></div>'
     controlBar.appendChild(timeDisp)
 
+    // @ts-expect-error
     StroeerVideoplayer.enterFullscreen = (): void => {
       if (typeof rootEl.requestFullscreen === 'function') {
         rootEl.requestFullscreen()
@@ -191,10 +192,12 @@ class UI {
       [{
         name: 'click',
         callb: () => {
+          // @ts-expect-error
           StroeerVideoplayer.enterFullscreen()
         }
       }])
 
+    // @ts-expect-error
     StroeerVideoplayer.exitFullscreen = (): void => {
       if (typeof document.exitFullscreen === 'function') {
         document.exitFullscreen().then(noop).catch(noop)
@@ -215,17 +218,18 @@ class UI {
       [{
         name: 'click',
         callb: () => {
+          // @ts-expect-error
           StroeerVideoplayer.exitFullscreen()
         }
       }])
 
     // Make timeline seekable
-    timelineContainer.addEventListener('click', (evt) => {
-      const clickX = evt.offsetX
-      const percentClick = 100 / timelineContainer.offsetWidth * clickX
-      const absoluteDuration = percentClick / 100 * videoEl.duration
-      videoEl.currentTime = absoluteDuration
-    })
+    // timelineContainer.addEventListener('click', (evt) => {
+    //   const clickX = evt.offsetX
+    //   const percentClick = 100 / timelineContainer.offsetWidth * clickX
+    //   const absoluteDuration = percentClick / 100 * videoEl.duration
+    //   videoEl.currentTime = absoluteDuration
+    // })
 
     // Trigger play and pause on UI-Container click
     uiContainer.addEventListener('click', (evt) => {
@@ -268,12 +272,12 @@ class UI {
     let toggleControlbarSecondsLeft = toggleControlbarInSeconds
     const toggleControlbarTicker = (): void => {
       if (videoEl.paused === true) {
-        controlBarContainer.style.opacity = 1
+        controlBarContainer.style.opacity = '1'
         toggleControlbarSecondsLeft = toggleControlbarInSeconds
         return
       }
       if (toggleControlbarSecondsLeft === 0) {
-        controlBarContainer.style.opacity = 0
+        controlBarContainer.style.opacity = '0'
       } else {
         toggleControlbarSecondsLeft = toggleControlbarSecondsLeft - 1
       }
@@ -281,20 +285,25 @@ class UI {
 
     rootEl.addEventListener('mousemove', () => {
       toggleControlbarSecondsLeft = toggleControlbarInSeconds
-      controlBarContainer.style.opacity = 1
+      controlBarContainer.style.opacity = '1'
     })
 
     setInterval(toggleControlbarTicker, 1000)
 
     this.onVideoElPlay = () => {
       hideElement(playButton)
+      hideElement(replayButton)
       showElement(pauseButton)
       hideElement(overlayContainer)
     }
     videoEl.addEventListener('play', this.onVideoElPlay)
 
     this.onVideoElPause = () => {
-      showElement(playButton)
+      if (videoEl.duration === videoEl.currentTime) {
+        showElement(replayButton)
+      } else {
+        showElement(playButton)
+      }
       showElement(overlayContainer)
       hideElement(pauseButton)
     }
@@ -315,6 +324,93 @@ class UI {
       timelineElapsedBubble.style.left = percentageString + '%'
     }
     videoEl.addEventListener('timeupdate', this.onVideoElTimeupdate)
+
+    const calulateDurationPercentageBasedOnXCoords = (x: number): number => {
+      const percentage = (100 / timelineContainer.offsetWidth) * x
+      return percentage
+    }
+
+    const updateTimelineWhileDragging = (evt: any): void => {
+      let pageX = evt.pageX
+      if (pageX === undefined) {
+        if ('touches' in evt && evt.touches.length > 0) {
+          pageX = evt.touches[0].clientX
+        } else {
+          pageX = false
+        }
+      }
+      if (pageX === false) return
+      const durationContainerBoundingClientRect = timelineContainer.getBoundingClientRect()
+      let durationContainerOffsetX = 0
+      if ('x' in durationContainerBoundingClientRect) {
+        durationContainerOffsetX = durationContainerBoundingClientRect.x
+      } else {
+        // @ts-expect-error
+        durationContainerOffsetX = durationContainerBoundingClientRect.left
+      }
+      let x = pageX - durationContainerOffsetX
+      if (x < 0) x = 0
+      if (x > durationContainerBoundingClientRect.width) { x = durationContainerBoundingClientRect.width }
+
+      const percentageX = calulateDurationPercentageBasedOnXCoords(x)
+      const percentageXString = String(percentageX)
+      timelineElapsedBubble.style.left = percentageXString + '%'
+      timelineElapsed.style.width = percentageXString + '%'
+      const ve = videoEl
+      const vd = ve.duration
+      const percentageTime = (vd / 100) * percentageX
+      timelineElapsed.setAttribute('data-percentage', percentageXString)
+      timelineElapsed.setAttribute('data-timeinseconds', String(percentageTime))
+    }
+
+    let draggingWhat = ''
+
+    const dragStart = (evt: any): void => {
+      switch (evt.target) {
+        case timelineContainer:
+        case timelineElapsed:
+        case timelineElapsedBubble:
+          videoEl.pause()
+          draggingWhat = 'timeline'
+          break
+        default:
+          break
+      }
+    }
+
+    const dragEnd = (evt: any): void => {
+      if (draggingWhat === 'timeline') {
+        draggingWhat = ''
+        updateTimelineWhileDragging(evt)
+        videoEl.currentTime = timelineElapsed.getAttribute('data-timeinseconds')
+        videoEl.play()
+      }
+    }
+
+    const drag = (evt: any): void => {
+      if (draggingWhat === 'timeline') {
+        updateTimelineWhileDragging(evt)
+      }
+    }
+
+    document.body.addEventListener('touchstart', dragStart, {
+      passive: true
+    })
+    document.body.addEventListener('touchend', dragEnd, {
+      passive: true
+    })
+    document.body.addEventListener('touchmove', drag, {
+      passive: true
+    })
+    document.body.addEventListener('mousedown', dragStart, {
+      passive: true
+    })
+    document.body.addEventListener('mouseup', dragEnd, {
+      passive: true
+    })
+    document.body.addEventListener('mousemove', drag, {
+      passive: true
+    })
 
     this.onVideoElVolumeChange = () => {
       if (videoEl.muted === true) {
