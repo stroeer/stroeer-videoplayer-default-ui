@@ -1,5 +1,5 @@
 import { version } from '../package.json'
-import UIIcons from './svg/icons.svg'
+import UIIcons from './sprites/svg/sprite.symbol.svg'
 import noop from './noop'
 import SVGHelper from './SVGHelper'
 
@@ -24,6 +24,10 @@ declare global {
     mozRequestFullscreen?: () => Promise<void>
     webkitRequestFullscreen?: () => Promise<void>
   }
+}
+
+const isTouchDevice = (): boolean => {
+  return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0))
 }
 
 const hideElement = (element: HTMLElement): void => {
@@ -90,72 +94,6 @@ class UI {
     return el
   }
 
-  createSettingsMenu = (StroeerVideoplayer: IStroeerVideoplayer): HTMLElement => {
-    const plr = StroeerVideoplayer.getVideoEl()
-    const controlBar = StroeerVideoplayer.getUIEl().querySelector('.controlbar')
-    const settingsMenu = controlBar.querySelector('.settingsMenu') ?? document.createElement('div')
-    // Playspeed Choser
-    const speedLine = document.createElement('div')
-    speedLine.classList.add('speedbox')
-    const spdlneChoser = document.createElement('span')
-    const speeds = [0.5, 1, 1.5, 2]
-    //    speeds.forEach((o, i) => {
-    for (let i = 0; i < speeds.length; i++) {
-      const o = speeds[i]
-      const opt = document.createElement('i')
-      if (plr.playbackRate === o) opt.classList.add('selected')
-      opt.innerHTML = o.toString()
-      opt.addEventListener('click', (ev) => {
-        if (plr.playbackRate === o) return
-        plr.playbackRate = o
-        plr.defaultPlaybackRate = o
-        const selects = spdlneChoser.querySelector('.selected')
-        if (selects !== null) selects.classList.remove('selected')
-        opt.classList.add('selected')
-        hideElement(settingsMenu)
-      })
-      spdlneChoser.appendChild(opt)
-    }
-    speedLine.innerHTML = 'Speed '
-    speedLine.appendChild(spdlneChoser)
-    settingsMenu.appendChild(speedLine)
-
-    // Quality Choser
-    const qualCaption = document.createElement('h2')
-    qualCaption.innerHTML = 'Quality'
-    settingsMenu.appendChild(qualCaption)
-
-    const sources: NodeListOf<HTMLSourceElement> = plr.querySelectorAll('source')
-    for (let i = 0; i < sources.length; i++) {
-      const o = sources[i]
-      const btn = document.createElement('button')
-      btn.innerHTML = o.dataset.label ?? ''
-      if (plr.currentSrc === o.src) btn.classList.add('selected')
-      btn.addEventListener('click', (ev) => {
-        const playstate = plr.paused
-        const elapsedTime = plr.currentTime
-        const selects = settingsMenu.querySelector('button.selected')
-        if (selects !== null) selects.classList.remove('selected')
-        btn.classList.add('selected')
-        hideElement(settingsMenu)
-        plr.src = o.src ?? ''
-        const callb = (): void => {
-          plr.removeEventListener('loadeddata', callb)
-          plr.currentTime = elapsedTime
-          if (playstate === false) plr.play()
-        }
-        if (elapsedTime > 0) {
-          plr.addEventListener('loadeddata', callb)
-          plr.load()
-        }
-      })
-      settingsMenu.appendChild(btn)
-    }
-    settingsMenu.classList.add('settingsmenu')
-    controlBar.appendChild(settingsMenu)
-    return settingsMenu
-  }
-
   setTimeDisp = (timeDisp: HTMLElement, el: number, tot: number): void => {
     const elmino = timeDisp.querySelector('.elapsed .min')
     if (elmino !== null) elmino.innerHTML = Math.floor(el / 60).toString()
@@ -186,15 +124,17 @@ class UI {
     const uiContainer = document.createElement('div')
     const timelineContainer = document.createElement('div')
     const timelineElapsed = document.createElement('div')
+    const timelineElapsedBubble = document.createElement('div')
     const controlBar = document.createElement('div')
     const buttonsContainer = document.createElement('div')
     const overlayContainer = document.createElement('div')
     overlayContainer.className = 'video-overlay'
-    overlayContainer.appendChild(SVGHelper('play'))
+    overlayContainer.appendChild(SVGHelper('Icon-Play'))
     uiContainer.className = this.uiContainerClassName
     controlBar.className = 'controlbar'
     timelineContainer.className = 'timeline'
     timelineElapsed.className = 'elapsed'
+    timelineElapsedBubble.className = 'elapsed-bubble'
     buttonsContainer.className = 'buttons'
     controlBar.appendChild(buttonsContainer)
     uiContainer.appendChild(controlBar)
@@ -202,63 +142,20 @@ class UI {
     uiEl.appendChild(uiContainer)
 
     // Create the Buttons
-    const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'play', false,
+    const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', false,
       [{ name: 'click', callb: () => { videoEl.play() } }])
 
-    this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'replay', true,
+    const replayButton = this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'Icon-Replay', true,
       [{ name: 'click', callb: () => { videoEl.play() } }])
 
-    const pauseButton = this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'pause', videoEl.paused,
+    const pauseButton = this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'Icon-Pause', videoEl.paused,
       [{ name: 'click', callb: () => { videoEl.pause() } }])
 
-    const muteButton = this.createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'volume', videoEl.muted,
+    const muteButton = this.createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'Icon-Volume', videoEl.muted,
       [{ name: 'click', callb: () => { videoEl.muted = true } }])
 
-    const unmuteButton = this.createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'muted', true,
+    const unmuteButton = this.createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'Icon-Mute', true,
       [{ name: 'click', callb: () => { videoEl.muted = false } }])
-
-    // Volume slider
-    const volSlider = document.createElement('div')
-    volSlider.classList.add('volSliderBox')
-    volSlider.innerHTML = '<i><s></s></i>'
-    const aktVolPos = (aktx: number): void => {
-      const clickX = aktx
-      let percentClick = Math.floor(100 / volSlider.clientWidth * clickX)
-      const inner = volSlider.querySelector('s')
-      if (percentClick <= 0) {
-        videoEl.muted = true
-        percentClick = 0
-      } else {
-        videoEl.muted = false
-        if (percentClick > 100) percentClick = 100
-      }
-      if (inner !== null) inner.style.width = percentClick.toString() + '%'
-      videoEl.volume = percentClick / 100
-    }
-    volSlider.addEventListener('mousedown', (evt) => {
-      aktVolPos(evt.offsetX)
-      this.isMouseDown = true
-    })
-    volSlider.addEventListener('touchstart', (evt) => {
-      aktVolPos(evt.targetTouches[0].pageX)
-      this.isMouseDown = true
-    })
-    volSlider.addEventListener('mouseup', (evt) => {
-      this.isMouseDown = false
-    })
-    volSlider.addEventListener('mouseleave', (evt) => {
-      this.isMouseDown = false
-    })
-    volSlider.addEventListener('touchend', (evt) => {
-      this.isMouseDown = false
-    })
-    volSlider.addEventListener('mousemove', (evt) => {
-      if (this.isMouseDown === true) aktVolPos(evt.offsetX)
-    })
-    volSlider.addEventListener('touchmove', (evt) => {
-      if (this.isMouseDown === true) aktVolPos(evt.targetTouches[0].pageX)
-    })
-    controlBar.appendChild(volSlider)
 
     // Time Display
     const timeDisp = document.createElement('div')
@@ -266,78 +163,73 @@ class UI {
     timeDisp.innerHTML = '<div class="elapsed"><span class="min">00</span>:<span class="sec">00</span> /</div><div class="total"><span class="min">00</span>:<span class="sec">00</span></div>'
     controlBar.appendChild(timeDisp)
 
+    // @ts-expect-error
+    StroeerVideoplayer.enterFullscreen = (): void => {
+      if (typeof rootEl.requestFullscreen === 'function') {
+        rootEl.requestFullscreen()
+      } else if (typeof rootEl.webkitRequestFullscreen === 'function') {
+        if (navigator.userAgent.includes('iPad')) {
+          videoEl.webkitRequestFullscreen()
+        } else {
+          rootEl.webkitRequestFullscreen()
+        }
+      } else if (typeof rootEl.mozRequestFullScreen === 'function') {
+        rootEl.mozRequestFullScreen()
+      } else if (typeof rootEl.msRequestFullscreen === 'function') {
+        rootEl.msRequestFullscreen()
+      } else if (typeof rootEl.webkitEnterFullscreen === 'function') {
+        rootEl.webkitEnterFullscreen()
+      } else if (typeof videoEl.webkitEnterFullscreen === 'function') {
+        videoEl.webkitEnterFullscreen()
+      } else {
+        console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
+      }
+    }
+
     // Fullscreen Button
     const enterFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen',
-      'Enter Fullscreen', 'enter-fullscreen', false,
+      'Enter Fullscreen', 'Icon-Fullscreen', false,
       [{
         name: 'click',
         callb: () => {
-          if (typeof rootEl.requestFullscreen === 'function') {
-            rootEl.requestFullscreen()
-          } else if (typeof rootEl.webkitRequestFullscreen === 'function') {
-            if (navigator.userAgent.includes('iPad')) {
-              videoEl.webkitRequestFullscreen()
-            } else {
-              rootEl.webkitRequestFullscreen()
-            }
-          } else if (typeof rootEl.mozRequestFullScreen === 'function') {
-            rootEl.mozRequestFullScreen()
-          } else if (typeof rootEl.msRequestFullscreen === 'function') {
-            rootEl.msRequestFullscreen()
-          } else if (typeof rootEl.webkitEnterFullscreen === 'function') {
-            rootEl.webkitEnterFullscreen()
-          } else if (typeof videoEl.webkitEnterFullscreen === 'function') {
-            videoEl.webkitEnterFullscreen()
-          } else {
-            console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
-          }
+          // @ts-expect-error
+          StroeerVideoplayer.enterFullscreen()
         }
       }])
 
-    const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'exit-fullscreen', true,
+    // @ts-expect-error
+    StroeerVideoplayer.exitFullscreen = (): void => {
+      if (typeof document.exitFullscreen === 'function') {
+        document.exitFullscreen().then(noop).catch(noop)
+      } else if (typeof document.webkitExitFullscreen === 'function') {
+        document.webkitExitFullscreen()
+      } else if (typeof document.mozCancelFullScreen === 'function') {
+        document.mozCancelFullScreen().then(noop).catch(noop)
+      } else if (typeof document.msExitFullscreen === 'function') {
+        document.msExitFullscreen()
+      } else if (typeof videoEl.webkitExitFullscreen === 'function') {
+        videoEl.webkitExitFullscreen()
+      } else {
+        console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
+      }
+    }
+
+    const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', true,
       [{
         name: 'click',
         callb: () => {
-          if (typeof document.exitFullscreen === 'function') {
-            document.exitFullscreen().then(noop).catch(noop)
-          } else if (typeof document.webkitExitFullscreen === 'function') {
-            document.webkitExitFullscreen()
-          } else if (typeof document.mozCancelFullScreen === 'function') {
-            document.mozCancelFullScreen().then(noop).catch(noop)
-          } else if (typeof document.msExitFullscreen === 'function') {
-            document.msExitFullscreen()
-          } else if (typeof videoEl.webkitExitFullscreen === 'function') {
-            videoEl.webkitExitFullscreen()
-          } else {
-            console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
-          }
+          // @ts-expect-error
+          StroeerVideoplayer.exitFullscreen()
         }
       }])
-
-    // Settings
-    const settingsMenu = this.createSettingsMenu(StroeerVideoplayer)
-    hideElement(settingsMenu)
-
-    this.createButton(StroeerVideoplayer, 'button', 'settings', 'Settings', 'settings', false,
-      [{
-        name: 'click',
-        callb: () => {
-          if (settingsMenu.classList.contains('hidden')) showElement(settingsMenu)
-          else hideElement(settingsMenu)
-        }
-      }])
-
-    controlBar.addEventListener('mouseleave', (evt) => {
-      hideElement(settingsMenu)
-    })
 
     // Make timeline seekable
-    timelineContainer.addEventListener('click', (evt) => {
-      const clickX = evt.offsetX
-      const percentClick = 100 / timelineContainer.offsetWidth * clickX
-      const absoluteDuration = percentClick / 100 * videoEl.duration
-      videoEl.currentTime = absoluteDuration
-    })
+    // timelineContainer.addEventListener('click', (evt) => {
+    //   const clickX = evt.offsetX
+    //   const percentClick = 100 / timelineContainer.offsetWidth * clickX
+    //   const absoluteDuration = percentClick / 100 * videoEl.duration
+    //   videoEl.currentTime = absoluteDuration
+    // })
 
     // Trigger play and pause on UI-Container click
     uiContainer.addEventListener('click', (evt) => {
@@ -349,6 +241,9 @@ class UI {
       if (videoEl.paused === true) {
         videoEl.play()
       } else {
+        if (isTouchDevice()) {
+          return
+        }
         videoEl.pause()
       }
     })
@@ -362,20 +257,53 @@ class UI {
     })
 
     timelineContainer.appendChild(timelineElapsed)
+    timelineContainer.appendChild(timelineElapsedBubble)
     controlBar.appendChild(timelineContainer)
     controlBar.appendChild(buttonsContainer)
-    uiContainer.appendChild(controlBar)
+
+    const controlBarContainer = document.createElement('div')
+    controlBarContainer.classList.add('controlbar-container')
+
+    controlBarContainer.appendChild(controlBar)
+    uiContainer.appendChild(controlBarContainer)
     uiEl.appendChild(uiContainer)
+
+    const toggleControlbarInSeconds = 5
+    let toggleControlbarSecondsLeft = toggleControlbarInSeconds
+    const toggleControlbarTicker = (): void => {
+      if (videoEl.paused === true) {
+        controlBarContainer.style.opacity = '1'
+        toggleControlbarSecondsLeft = toggleControlbarInSeconds
+        return
+      }
+      if (toggleControlbarSecondsLeft === 0) {
+        controlBarContainer.style.opacity = '0'
+      } else {
+        toggleControlbarSecondsLeft = toggleControlbarSecondsLeft - 1
+      }
+    }
+
+    rootEl.addEventListener('mousemove', () => {
+      toggleControlbarSecondsLeft = toggleControlbarInSeconds
+      controlBarContainer.style.opacity = '1'
+    })
+
+    setInterval(toggleControlbarTicker, 1000)
 
     this.onVideoElPlay = () => {
       hideElement(playButton)
+      hideElement(replayButton)
       showElement(pauseButton)
       hideElement(overlayContainer)
     }
     videoEl.addEventListener('play', this.onVideoElPlay)
 
     this.onVideoElPause = () => {
-      showElement(playButton)
+      if (videoEl.duration === videoEl.currentTime) {
+        showElement(replayButton)
+      } else {
+        showElement(playButton)
+      }
       showElement(overlayContainer)
       hideElement(pauseButton)
     }
@@ -393,8 +321,95 @@ class UI {
       this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
 
       timelineElapsed.style.width = percentageString + '%'
+      timelineElapsedBubble.style.left = percentageString + '%'
     }
     videoEl.addEventListener('timeupdate', this.onVideoElTimeupdate)
+
+    const calulateDurationPercentageBasedOnXCoords = (x: number): number => {
+      const percentage = (100 / timelineContainer.offsetWidth) * x
+      return percentage
+    }
+
+    const updateTimelineWhileDragging = (evt: any): void => {
+      let pageX = evt.pageX
+      if (pageX === undefined) {
+        if ('touches' in evt && evt.touches.length > 0) {
+          pageX = evt.touches[0].clientX
+        } else {
+          pageX = false
+        }
+      }
+      if (pageX === false) return
+      const durationContainerBoundingClientRect = timelineContainer.getBoundingClientRect()
+      let durationContainerOffsetX = 0
+      if ('x' in durationContainerBoundingClientRect) {
+        durationContainerOffsetX = durationContainerBoundingClientRect.x
+      } else {
+        durationContainerOffsetX = durationContainerBoundingClientRect.left
+      }
+      let x = pageX - durationContainerOffsetX
+      if (x < 0) x = 0
+      if (x > durationContainerBoundingClientRect.width) { x = durationContainerBoundingClientRect.width }
+
+      const percentageX = calulateDurationPercentageBasedOnXCoords(x)
+      const percentageXString = String(percentageX)
+      timelineElapsedBubble.style.left = percentageXString + '%'
+      timelineElapsed.style.width = percentageXString + '%'
+      const ve = videoEl
+      const vd = ve.duration
+      const percentageTime = (vd / 100) * percentageX
+      timelineElapsed.setAttribute('data-percentage', percentageXString)
+      timelineElapsed.setAttribute('data-timeinseconds', String(percentageTime))
+    }
+
+    let draggingWhat = ''
+
+    const dragStart = (evt: any): void => {
+      switch (evt.target) {
+        case timelineContainer:
+        case timelineElapsed:
+        case timelineElapsedBubble:
+          videoEl.pause()
+          draggingWhat = 'timeline'
+          break
+        default:
+          break
+      }
+    }
+
+    const dragEnd = (evt: any): void => {
+      if (draggingWhat === 'timeline') {
+        draggingWhat = ''
+        updateTimelineWhileDragging(evt)
+        videoEl.currentTime = timelineElapsed.getAttribute('data-timeinseconds')
+        videoEl.play()
+      }
+    }
+
+    const drag = (evt: any): void => {
+      if (draggingWhat === 'timeline') {
+        updateTimelineWhileDragging(evt)
+      }
+    }
+
+    document.body.addEventListener('touchstart', dragStart, {
+      passive: true
+    })
+    document.body.addEventListener('touchend', dragEnd, {
+      passive: true
+    })
+    document.body.addEventListener('touchmove', drag, {
+      passive: true
+    })
+    document.body.addEventListener('mousedown', dragStart, {
+      passive: true
+    })
+    document.body.addEventListener('mouseup', dragEnd, {
+      passive: true
+    })
+    document.body.addEventListener('mousemove', drag, {
+      passive: true
+    })
 
     this.onVideoElVolumeChange = () => {
       if (videoEl.muted === true) {
