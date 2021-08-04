@@ -146,7 +146,14 @@ class UI {
     uiContainer.appendChild(controlBar)
     uiContainer.appendChild(overlayContainer)
     uiContainer.appendChild(loadingSpinnerContainer)
-    uiEl.appendChild(uiContainer)
+    uiEl.appendChild(uiContainer);
+
+    (function () {
+      for (let i = 0; i < 12; i++) {
+        const d = document.createElement('div')
+        loadingSpinnerAnimation.appendChild(d)
+      }
+    })()
 
     const showLoading = (modus: boolean): void => {
       if (modus) {
