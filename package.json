@@ -38,6 +38,8 @@
   "@rollup/plugin-typescript": "^8.1.0",
   "@stroeer/stroeer-videoplayer": "^0.0.5",
   "@superevilmegaco/jest-evil-svg-transformer": "^0.0.4",
+  "@types/jest": "^26.0.24",
+  "@types/mocha": "^9.0.0",
   "@typescript-eslint/eslint-plugin": "4",
   "@typescript-eslint/parser": "^4.14.1",
   "cypress": "^6.5.0",

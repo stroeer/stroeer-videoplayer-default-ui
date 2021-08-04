@@ -345,7 +345,6 @@ class UI {
       if ('x' in durationContainerBoundingClientRect) {
         durationContainerOffsetX = durationContainerBoundingClientRect.x
       } else {
-        // @ts-expect-error
         durationContainerOffsetX = durationContainerBoundingClientRect.left
       }
       let x = pageX - durationContainerOffsetX
