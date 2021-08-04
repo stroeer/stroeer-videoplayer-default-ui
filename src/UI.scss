@@ -64,7 +64,7 @@
 			height: 2px;
 			background-color: rgba(255, 255, 255, .5);
 			.elapsed {
-				background-color: #E20074;
+				background-color: $primaryColor1;
 				width: 0;
 				height: 100%;
 				user-select: none;
@@ -84,7 +84,7 @@
 				position: absolute;
 				width: 9px;
 				height: 9px;
-				background-color: #E20074;
+				background-color: $primaryColor1;
 				top: -4px;
 				border-radius: 50%;
 			}
