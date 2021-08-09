@@ -127,9 +127,21 @@ class UI {
     const timelineContainer = document.createElement('div')
     const timelineElapsed = document.createElement('div')
     const timelineElapsedBubble = document.createElement('div')
+    const volumeContainer = document.createElement('div')
+    const volumeRange = document.createElement('div')
+    const volumeLevel = document.createElement('div')
+    const volumeLevelBubble = document.createElement('div')
     const controlBar = document.createElement('div')
     const buttonsContainer = document.createElement('div')
     const overlayContainer = document.createElement('div')
+    volumeContainer.className = 'volume-container'
+    volumeContainer.style.opacity = '0'
+    volumeRange.className = 'volume-range'
+    volumeLevel.className = 'volume-level'
+    volumeLevelBubble.className = 'volume-level-bubble'
+    volumeRange.appendChild(volumeLevelBubble)
+    volumeRange.appendChild(volumeLevel)
+    volumeContainer.appendChild(volumeRange)
     overlayContainer.className = 'video-overlay'
     overlayContainer.appendChild(SVGHelper('Icon-Play'))
     uiContainer.className = this.uiContainerClassName
@@ -142,6 +154,7 @@ class UI {
     timelineElapsed.className = 'elapsed'
     timelineElapsedBubble.className = 'elapsed-bubble'
     buttonsContainer.className = 'buttons'
+    controlBar.appendChild(volumeContainer)
     controlBar.appendChild(buttonsContainer)
     uiContainer.appendChild(controlBar)
     uiContainer.appendChild(overlayContainer)
@@ -329,6 +342,22 @@ class UI {
 
     setInterval(toggleControlbarTicker, 1000)
 
+    const toggleVolumeSliderInSeconds = 2
+    let toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds
+    const toggleVolumeSliderTicker = (): void => {
+      if (toggleVolumeSliderSecondsLeft === 0) {
+        volumeContainer.style.opacity = '0'
+      } else {
+        toggleVolumeSliderSecondsLeft = toggleVolumeSliderSecondsLeft - 1
+      }
+    }
+
+    volumeContainer.addEventListener('mousemove', () => {
+      toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds
+    })
+
+    setInterval(toggleVolumeSliderTicker, 1000)
+
     this.onVideoElPlay = () => {
       hideElement(playButton)
       hideElement(replayButton)
@@ -364,6 +393,43 @@ class UI {
     }
     videoEl.addEventListener('timeupdate', this.onVideoElTimeupdate)
 
+    const calulateVolumePercentageBasedOnYCoords = (y: number): number => {
+      const percentage = (100 / volumeRange.offsetHeight) * y
+      return percentage
+    }
+
+    const updateVolumeWhileDragging = (evt: any): void => {
+      let pageY = evt.pageY
+      if (pageY === undefined) {
+        if ('touches' in evt && evt.touches.length > 0) {
+          pageY = evt.touches[0].clientY
+        } else {
+          pageY = false
+        }
+      }
+      if (pageY === false) return
+      const volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect()
+      let volumeContainerOffsetY = 0
+      if ('x' in volumeRangeBoundingClientRect) {
+        volumeContainerOffsetY = volumeRangeBoundingClientRect.y
+      } else {
+        volumeContainerOffsetY = volumeRangeBoundingClientRect.top
+      }
+      let y = pageY - volumeContainerOffsetY
+      if (y < 0) y = 0
+      if (y > volumeRangeBoundingClientRect.height) { y = volumeRangeBoundingClientRect.height }
+
+      const percentageY = calulateVolumePercentageBasedOnYCoords(y)
+      const percentageHeight = 100 - percentageY
+      const percentageHeightString = String(percentageHeight)
+      const percentageYString = String(percentageY)
+      volumeLevel.style.height = percentageHeightString + '%'
+      if (percentageY < 90) {
+        volumeLevelBubble.style.top = percentageYString + '%'
+      }
+      const volume = percentageHeight / 100
+      videoEl.volume = volume
+    }
     const calulateDurationPercentageBasedOnXCoords = (x: number): number => {
       const percentage = (100 / timelineContainer.offsetWidth) * x
       return percentage
@@ -411,6 +477,11 @@ class UI {
           videoEl.pause()
           draggingWhat = 'timeline'
           break
+        case volumeRange:
+        case volumeLevel:
+        case volumeLevelBubble:
+          draggingWhat = 'volume'
+          break
         default:
           break
       }
@@ -423,11 +494,18 @@ class UI {
         videoEl.currentTime = timelineElapsed.getAttribute('data-timeinseconds')
         videoEl.play()
       }
+      if (draggingWhat === 'volume') {
+        draggingWhat = ''
+        updateVolumeWhileDragging(evt)
+      }
     }
 
     const drag = (evt: any): void => {
       if (draggingWhat === 'timeline') {
         updateTimelineWhileDragging(evt)
+      }
+      if (draggingWhat === 'volume') {
+        updateVolumeWhileDragging(evt)
       }
     }
 
@@ -460,6 +538,22 @@ class UI {
       }
     }
     videoEl.addEventListener('volumechange', this.onVideoElVolumeChange)
+
+    muteButton.addEventListener('mouseover', () => {
+      if (isTouchDevice()) {
+        return
+      }
+      volumeContainer.style.opacity = '1'
+      toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds
+    })
+
+    unmuteButton.addEventListener('mouseover', () => {
+      if (isTouchDevice()) {
+        return
+      }
+      volumeContainer.style.opacity = '1'
+      toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds
+    })
 
     this.onDocumentFullscreenChange = () => {
       if (document.fullscreenElement === rootEl) {
