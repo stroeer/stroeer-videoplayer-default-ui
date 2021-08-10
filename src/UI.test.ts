@@ -32,6 +32,7 @@ Object.defineProperty(videoEl, 'duration', { value: 10 })
 const source1 = document.createElement('source')
 source1.type = 'video/mp4'
 source1.src = 'https://evilcdn.net/demo-videos/walialu-44s-testspot-longboarding-240p.mp4'
+videoEl.appendChild(source1)
 rootEl.appendChild(uiEl)
 rootEl.appendChild(videoEl)
 document.body.appendChild(rootEl)
