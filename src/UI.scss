@@ -1,6 +1,7 @@
 @import 'variables';
 @import 'loading-spinner';
 @import 'volume-slider';
+@import 'seek-preview';
 
 .stroeer-videoplayer video {
     border-radius: 5px;
@@ -13,7 +14,7 @@
 	z-index: 200;
 	height: 100%;
 	overflow: hidden;
-        font-family: Arial, Helvetica, Sans;
+	font-family: Roboto, Arial, Helvetica, sans-serif;
         .hidden {
 	    display: none;
         }

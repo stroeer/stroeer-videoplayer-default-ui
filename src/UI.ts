@@ -124,6 +124,13 @@ class UI {
     const uiContainer = document.createElement('div')
     const loadingSpinnerContainer = document.createElement('div')
     const loadingSpinnerAnimation = document.createElement('div')
+    const seekPreviewContainer = document.createElement('div')
+    const seekPreview = document.createElement('div')
+    const seekPreviewVideo = document.createElement('video')
+    const seekPreviewTime = document.createElement('div')
+    const seekPreviewTimeMinutes = document.createElement('span')
+    const seekPreviewTimeDivider = document.createElement('span')
+    const seekPreviewTimeSeconds = document.createElement('span')
     const timelineContainer = document.createElement('div')
     const timelineElapsed = document.createElement('div')
     const timelineElapsedBubble = document.createElement('div')
@@ -134,6 +141,21 @@ class UI {
     const controlBar = document.createElement('div')
     const buttonsContainer = document.createElement('div')
     const overlayContainer = document.createElement('div')
+    seekPreviewVideo.setAttribute('preload', 'auto')
+    seekPreviewContainer.classList.add('seek-preview-container')
+    hideElement(seekPreviewContainer)
+    seekPreview.classList.add('seek-preview')
+    seekPreviewTime.classList.add('seek-preview-time')
+    seekPreviewTimeMinutes.classList.add('seek-preview-time-minutes')
+    seekPreviewTimeDivider.classList.add('seek-preview-time-divider')
+    seekPreviewTimeDivider.innerHTML = ':'
+    seekPreviewTimeSeconds.classList.add('seek-preview-time-seconds')
+    seekPreviewTime.appendChild(seekPreviewTimeMinutes)
+    seekPreviewTime.appendChild(seekPreviewTimeDivider)
+    seekPreviewTime.appendChild(seekPreviewTimeSeconds)
+    seekPreview.appendChild(seekPreviewVideo)
+    seekPreview.appendChild(seekPreviewTime)
+    seekPreviewContainer.appendChild(seekPreview)
     volumeContainer.className = 'volume-container'
     volumeContainer.style.opacity = '0'
     volumeRange.className = 'volume-range'
@@ -275,14 +297,6 @@ class UI {
         }
       }])
 
-    // Make timeline seekable
-    // timelineContainer.addEventListener('click', (evt) => {
-    //   const clickX = evt.offsetX
-    //   const percentClick = 100 / timelineContainer.offsetWidth * clickX
-    //   const absoluteDuration = percentClick / 100 * videoEl.duration
-    //   videoEl.currentTime = absoluteDuration
-    // })
-
     // Trigger play and pause on UI-Container click
     uiContainer.addEventListener('click', (evt) => {
       const target = evt.target as HTMLDivElement
@@ -308,6 +322,49 @@ class UI {
       }
     })
 
+    seekPreviewVideo.src = videoEl.querySelector('source').src
+
+    timelineContainer.addEventListener('mousemove', (evt) => {
+      // only for desktop devices
+      if (isTouchDevice()) {
+        return
+      }
+      // it makes no sense to show a preview of the current frames of the video playing,
+      // so we bail out here..
+      if (evt.target === timelineElapsedBubble) {
+        hideElement(seekPreviewContainer)
+        return
+      }
+      const caluclatedMaxRight = videoEl.offsetWidth - seekPreviewContainer.offsetWidth
+      let caluclatedLeft = evt.offsetX - seekPreviewContainer.offsetWidth / 2
+      if (caluclatedLeft < 0) {
+        caluclatedLeft = 0
+      }
+      if (caluclatedLeft > caluclatedMaxRight) {
+        caluclatedLeft = caluclatedMaxRight
+      }
+      seekPreviewContainer.style.left = String(caluclatedLeft) + 'px'
+      const x = evt.offsetX
+      const vd = videoEl.duration
+      const elWidth = timelineContainer.offsetWidth
+      const val = (100 / elWidth) * x
+      const time = (vd / 100) * val
+
+      seekPreviewTimeMinutes.innerHTML = Math.floor(time / 60).toString()
+      seekPreviewTimeSeconds.innerHTML = ('00' + (Math.floor(time) % 60).toString()).slice(-2)
+      seekPreviewVideo.currentTime = time
+      showElement(seekPreviewContainer)
+    })
+
+    timelineContainer.addEventListener('mouseout', (evt) => {
+      // only for desktop devices
+      if (isTouchDevice()) {
+        return
+      }
+      hideElement(seekPreviewContainer)
+    })
+
+    timelineContainer.appendChild(seekPreviewContainer)
     timelineContainer.appendChild(timelineElapsed)
     timelineContainer.appendChild(timelineElapsedBubble)
     controlBar.appendChild(timelineContainer)
