@@ -335,7 +335,7 @@ class UI {
         hideElement(seekPreviewContainer)
         return
       }
-      const caluclatedMaxRight = videoEl.offsetWidth - seekPreviewContainer.offsetWidth
+      const caluclatedMaxRight = timelineContainer.offsetWidth - seekPreviewContainer.offsetWidth
       let caluclatedLeft = evt.offsetX - seekPreviewContainer.offsetWidth / 2
       if (caluclatedLeft < 0) {
         caluclatedLeft = 0
