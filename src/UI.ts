@@ -7,6 +7,10 @@ interface IStroeerVideoplayer {
   getUIEl: Function
   getRootEl: Function
   getVideoEl: Function
+  loading: Function
+  showBigPlayButton: Function
+  enterFullscreen: Function
+  exitFullscreen: Function
 }
 
 declare global {
@@ -50,6 +54,11 @@ class UI {
   onLoadedMetaData: Function
   onVideoElTimeupdate: Function
   onVideoElVolumeChange: Function
+  onDragStart: EventListener
+  onDrag: EventListener
+  onDragEnd: EventListener
+  toggleControlBarInterval: ReturnType<typeof setInterval>
+  toggleVolumeBarInterval: ReturnType<typeof setInterval>
   isMouseDown: Boolean
 
   constructor () {
@@ -62,6 +71,11 @@ class UI {
     this.onVideoElTimeupdate = noop
     this.onVideoElVolumeChange = noop
     this.onLoadedMetaData = noop
+    this.onDragStart = noop
+    this.onDrag = noop
+    this.onDragEnd = noop
+    this.toggleControlBarInterval = setInterval(noop, 1000)
+    this.toggleVolumeBarInterval = setInterval(noop, 1000)
     this.isMouseDown = false
 
     return this
@@ -198,9 +212,16 @@ class UI {
       }
     }
 
-    // @ts-expect-error
     StroeerVideoplayer.loading = (modus: boolean): void => {
       showLoading(modus)
+    }
+
+    StroeerVideoplayer.showBigPlayButton = (modus: boolean): void => {
+      if (modus) {
+        showElement(overlayContainer)
+      } else {
+        hideElement(overlayContainer)
+      }
     }
 
     videoEl.addEventListener('waiting', () => {
@@ -218,6 +239,10 @@ class UI {
     // Create the Buttons
     const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', false,
       [{ name: 'click', callb: () => { videoEl.play() } }])
+
+    if (videoEl.paused === false) {
+      hideElement(playButton)
+    }
 
     const replayButton = this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'Icon-Replay', true,
       [{ name: 'click', callb: () => { videoEl.play() } }])
@@ -237,7 +262,6 @@ class UI {
     timeDisp.innerHTML = '<div class="elapsed"><span class="min">00</span>:<span class="sec">00</span> /</div><div class="total"><span class="min">00</span>:<span class="sec">00</span></div>'
     controlBar.appendChild(timeDisp)
 
-    // @ts-expect-error
     StroeerVideoplayer.enterFullscreen = (): void => {
       if (typeof rootEl.requestFullscreen === 'function') {
         rootEl.requestFullscreen()
@@ -266,12 +290,10 @@ class UI {
       [{
         name: 'click',
         callb: () => {
-          // @ts-expect-error
           StroeerVideoplayer.enterFullscreen()
         }
       }])
 
-    // @ts-expect-error
     StroeerVideoplayer.exitFullscreen = (): void => {
       if (typeof document.exitFullscreen === 'function') {
         document.exitFullscreen().then(noop).catch(noop)
@@ -292,7 +314,6 @@ class UI {
       [{
         name: 'click',
         callb: () => {
-          // @ts-expect-error
           StroeerVideoplayer.exitFullscreen()
         }
       }])
@@ -313,6 +334,10 @@ class UI {
         videoEl.pause()
       }
     })
+
+    if (videoEl.paused === false) {
+      hideElement(overlayContainer)
+    }
 
     overlayContainer.addEventListener('click', (evt) => {
       if (videoEl.paused === true) {
@@ -397,7 +422,8 @@ class UI {
       controlBarContainer.style.opacity = '1'
     })
 
-    setInterval(toggleControlbarTicker, 1000)
+    clearInterval(this.toggleControlBarInterval)
+    this.toggleControlBarInterval = setInterval(toggleControlbarTicker, 1000)
 
     const toggleVolumeSliderInSeconds = 2
     let toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds
@@ -413,7 +439,8 @@ class UI {
       toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds
     })
 
-    setInterval(toggleVolumeSliderTicker, 1000)
+    clearInterval(this.toggleVolumeBarInterval)
+    this.toggleVolumeBarInterval = setInterval(toggleVolumeSliderTicker, 1000)
 
     this.onVideoElPlay = () => {
       hideElement(playButton)
@@ -438,7 +465,9 @@ class UI {
       this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
     })
 
-    videoEl.load()
+    if (videoEl.paused === true && videoEl.currentTime === 0) {
+      videoEl.load()
+    }
 
     this.onVideoElTimeupdate = () => {
       const percentage = videoEl.currentTime / videoEl.duration * 100
@@ -526,7 +555,7 @@ class UI {
 
     let draggingWhat = ''
 
-    const dragStart = (evt: any): void => {
+    this.onDragStart = (evt: any): void => {
       switch (evt.target) {
         case timelineContainer:
         case timelineElapsed:
@@ -544,7 +573,7 @@ class UI {
       }
     }
 
-    const dragEnd = (evt: any): void => {
+    this.onDragEnd = (evt: any): void => {
       if (draggingWhat === 'timeline') {
         draggingWhat = ''
         updateTimelineWhileDragging(evt)
@@ -557,7 +586,7 @@ class UI {
       }
     }
 
-    const drag = (evt: any): void => {
+    this.onDrag = (evt: any): void => {
       if (draggingWhat === 'timeline') {
         updateTimelineWhileDragging(evt)
       }
@@ -566,22 +595,22 @@ class UI {
       }
     }
 
-    document.body.addEventListener('touchstart', dragStart, {
+    document.body.addEventListener('touchstart', this.onDragStart, {
       passive: true
     })
-    document.body.addEventListener('touchend', dragEnd, {
+    document.body.addEventListener('touchend', this.onDragEnd, {
       passive: true
     })
-    document.body.addEventListener('touchmove', drag, {
+    document.body.addEventListener('touchmove', this.onDrag, {
       passive: true
     })
-    document.body.addEventListener('mousedown', dragStart, {
+    document.body.addEventListener('mousedown', this.onDragStart, {
       passive: true
     })
-    document.body.addEventListener('mouseup', dragEnd, {
+    document.body.addEventListener('mouseup', this.onDragEnd, {
       passive: true
     })
-    document.body.addEventListener('mousemove', drag, {
+    document.body.addEventListener('mousemove', this.onDrag, {
       passive: true
     })
 
@@ -664,6 +693,14 @@ class UI {
       videoEl.removeEventListener('pause', this.onVideoElPause)
       videoEl.removeEventListener('timeupdate', this.onVideoElTimeupdate)
       videoEl.removeEventListener('volumechange', this.onVideoElVolumeChange)
+      document.body.removeEventListener('touchstart', this.onDragStart)
+      document.body.removeEventListener('touchend', this.onDragEnd)
+      document.body.removeEventListener('touchmove', this.onDrag)
+      document.body.removeEventListener('mousedown', this.onDragStart)
+      document.body.removeEventListener('mouseup', this.onDragEnd)
+      document.body.removeEventListener('mousemove', this.onDrag)
+      clearInterval(this.toggleControlBarInterval)
+      clearInterval(this.toggleVolumeBarInterval)
       // @ts-expect-error
       document.removeEventListener('fullscreenchange', this.onDocumentFullscreenChange)
       uiEl.removeChild(uiEl.firstChild)

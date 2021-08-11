@@ -57,6 +57,18 @@ class StroeerVideoplayer {
   getVideoEl = (): HTMLVideoElement => {
     return videoEl
   }
+
+  loading = (): void => {
+  }
+
+  showBigPlayButton = (): void => {
+  }
+
+  enterFullscreen = (): void => {
+  }
+
+  exitFullscreen = (): void => {
+  }
 }
 
 const svp = new StroeerVideoplayer()
