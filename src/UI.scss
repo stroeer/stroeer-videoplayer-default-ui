@@ -103,7 +103,10 @@
 				padding: 4px 8px;
 				background-color: transparent;
 				&:hover {
-					background-color: rgba(255, 255 , 255, .5);
+					svg {
+						fill: #E20074;
+						stroke: #E20074;
+					}
 				}
 				&.hidden {
 					display: none;
