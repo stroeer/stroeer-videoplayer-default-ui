@@ -178,7 +178,7 @@ class UI {
     volumeRange.appendChild(volumeLevelBubble)
     volumeRange.appendChild(volumeLevel)
     volumeContainer.appendChild(volumeRange)
-    overlayContainer.className = 'video-overlay'
+    overlayContainer.className = 'video-overlay startscreen'
     overlayContainer.appendChild(SVGHelper('Icon-Play'))
     uiContainer.className = this.uiContainerClassName
     loadingSpinnerContainer.className = 'loading-spinner'
@@ -447,6 +447,7 @@ class UI {
       hideElement(replayButton)
       showElement(pauseButton)
       hideElement(overlayContainer)
+      overlayContainer.classList.remove('startscreen')
     }
     videoEl.addEventListener('play', this.onVideoElPlay)
 
