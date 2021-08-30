@@ -114,9 +114,20 @@ class UI {
     const elseco = timeDisp.querySelector('.elapsed .sec')
     if (elseco !== null) elseco.innerHTML = ('00' + (Math.floor(el) % 60).toString()).slice(-2)
     const totmino = timeDisp.querySelector('.total .min')
-    if (totmino !== null) totmino.innerHTML = Math.floor(tot / 60).toString()
+    if (totmino !== null) {
+      let durationMinutesString = Math.floor(tot / 60).toString()
+      const durationMinutes = Number(durationMinutesString)
+
+      if (isNaN(durationMinutes)) durationMinutesString = '0'
+      totmino.innerHTML = durationMinutesString
+    }
     const totseco = timeDisp.querySelector('.total .sec')
-    if (totseco !== null) totseco.innerHTML = ('00' + (Math.floor(tot) % 60).toString()).slice(-2)
+    if (totseco !== null) {
+      let durationSecondsString = ('00' + (Math.floor(tot) % 60).toString()).slice(-2)
+      const durationSeconds = Number(durationSecondsString)
+      if (isNaN(durationSeconds)) durationSecondsString = '00'
+      totseco.innerHTML = durationSecondsString
+    }
   }
 
   init = (StroeerVideoplayer: IStroeerVideoplayer): void => {
