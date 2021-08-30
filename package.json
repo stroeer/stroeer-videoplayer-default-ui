@@ -36,7 +36,7 @@
   "@rollup/plugin-json": "^4.1.0",
   "@rollup/plugin-node-resolve": "^11.2.0",
   "@rollup/plugin-typescript": "^8.1.0",
-  "@stroeer/stroeer-videoplayer": "^0.0.5",
+  "@stroeer/stroeer-videoplayer": "^0.0.8",
   "@superevilmegaco/jest-evil-svg-transformer": "^0.0.4",
   "@types/jest": "^26.0.24",
   "@types/mocha": "^9.0.0",
