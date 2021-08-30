@@ -7,6 +7,7 @@ interface IStroeerVideoplayer {
   getUIEl: Function
   getRootEl: Function
   getVideoEl: Function
+  getHlsJs: any
   loading: Function
   showBigPlayButton: Function
   enterFullscreen: Function
@@ -60,6 +61,7 @@ class UI {
   toggleControlBarInterval: ReturnType<typeof setInterval>
   toggleVolumeBarInterval: ReturnType<typeof setInterval>
   isMouseDown: Boolean
+  hls: any
 
   constructor () {
     this.version = version
@@ -77,6 +79,7 @@ class UI {
     this.toggleControlBarInterval = setInterval(noop, 1000)
     this.toggleVolumeBarInterval = setInterval(noop, 1000)
     this.isMouseDown = false
+    this.hls = null
 
     return this
   }
@@ -358,8 +361,6 @@ class UI {
       }
     })
 
-    seekPreviewVideo.src = videoEl.querySelector('source').src
-
     timelineContainer.addEventListener('mousemove', (evt) => {
       // only for desktop devices
       if (isTouchDevice()) {
@@ -371,6 +372,48 @@ class UI {
         hideElement(seekPreviewContainer)
         return
       }
+      const videoSource = videoEl.querySelector('source')
+      const HlsJs = StroeerVideoplayer.getHlsJs()
+      const canPlayNativeHls = videoEl.canPlayType('application/vnd.apple.mpegurl') === 'probably' || videoEl.canPlayType('application/vnd.apple.mpegurl') === 'maybe'
+
+      if (!canPlayNativeHls && HlsJs.isSupported() === true) {
+        if (this.hls === null || (this.hls !== null && this.hls.url !== videoSource.src)) {
+          if (this.hls !== null) {
+            this.hls.destroy()
+            this.hls = null
+          }
+          const hls = new HlsJs()
+          this.hls = hls
+          hls.loadSource(videoSource.src)
+          hls.attachMedia(seekPreviewVideo)
+
+          this.hls.on(HlsJs.Events.ERROR, (event: any, data: any) => {
+            console.log(event, data)
+            if (data.fatal !== undefined) {
+              switch (data.type) {
+                case HlsJs.ErrorTypes.NETWORK_ERROR:
+                  // try to recover network error
+                  console.log('fatal network error encountered, try to recover')
+                  hls.startLoad()
+                  break
+                case HlsJs.ErrorTypes.MEDIA_ERROR:
+                  console.log('fatal media error encountered, try to recover')
+                  hls.recoverMediaError()
+                  break
+                default:
+                  // cannot recover
+                  hls.destroy()
+                  break
+              }
+            }
+          })
+        }
+      } else {
+        if (seekPreviewVideo.src !== videoSource.src) {
+          seekPreviewVideo.src = videoSource.src
+        }
+      }
+
       const caluclatedMaxRight = timelineContainer.offsetWidth - seekPreviewContainer.offsetWidth
       let caluclatedLeft = evt.offsetX - seekPreviewContainer.offsetWidth / 2
       if (caluclatedLeft < 0) {
