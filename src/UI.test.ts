@@ -69,6 +69,23 @@ class StroeerVideoplayer {
 
   exitFullscreen = (): void => {
   }
+
+  getHlsJs = (): any => {
+    const mock = (): any => {
+      return {
+        attachMedia: () => {},
+        loadSource: () => {},
+        on: () => {}
+      }
+    }
+    mock.Events = {
+      ERROR: ''
+    }
+    mock.isSupported = () => {
+      return true
+    }
+    return mock
+  }
 }
 
 const svp = new StroeerVideoplayer()
