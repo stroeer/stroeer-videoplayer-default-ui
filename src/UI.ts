@@ -758,6 +758,10 @@ class UI {
       clearInterval(this.toggleVolumeBarInterval)
       // @ts-expect-error
       document.removeEventListener('fullscreenchange', this.onDocumentFullscreenChange)
+      if (this.hls !== null) {
+        this.hls.destroy()
+        this.hls = null
+      }
       uiEl.removeChild(uiEl.firstChild)
     }
   }
