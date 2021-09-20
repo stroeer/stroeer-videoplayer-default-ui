@@ -138,7 +138,7 @@ class UI {
     const videoEl = StroeerVideoplayer.getVideoEl()
     videoEl.removeAttribute('controls')
     const uiEl = StroeerVideoplayer.getUIEl()
-    if (uiEl.children.length !== 0) {
+    if (uiEl.querySelector('.' + this.uiContainerClassName) !== null) {
       return
     }
 
