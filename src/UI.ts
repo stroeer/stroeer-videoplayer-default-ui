@@ -540,23 +540,23 @@ class UI {
     }
 
     const updateVolumeWhileDragging = (evt: any): void => {
-      let pageY = evt.pageY
-      if (pageY === undefined) {
+      let clientY = evt.clientY
+      if (clientY === undefined) {
         if ('touches' in evt && evt.touches.length > 0) {
-          pageY = evt.touches[0].clientY
+          clientY = evt.touches[0].clientY
         } else {
-          pageY = false
+          clientY = false
         }
       }
-      if (pageY === false) return
+      if (clientY === false) return
       const volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect()
       let volumeContainerOffsetY = 0
-      if ('x' in volumeRangeBoundingClientRect) {
+      if ('y' in volumeRangeBoundingClientRect) {
         volumeContainerOffsetY = volumeRangeBoundingClientRect.y
       } else {
         volumeContainerOffsetY = volumeRangeBoundingClientRect.top
       }
-      let y = pageY - volumeContainerOffsetY
+      let y = clientY - volumeContainerOffsetY
       if (y < 0) y = 0
       if (y > volumeRangeBoundingClientRect.height) { y = volumeRangeBoundingClientRect.height }
 
@@ -577,15 +577,15 @@ class UI {
     }
 
     const updateTimelineWhileDragging = (evt: any): void => {
-      let pageX = evt.pageX
-      if (pageX === undefined) {
+      let clientX = evt.clientX
+      if (clientX === undefined) {
         if ('touches' in evt && evt.touches.length > 0) {
-          pageX = evt.touches[0].clientX
+          clientX = evt.touches[0].clientX
         } else {
-          pageX = false
+          clientX = false
         }
       }
-      if (pageX === false) return
+      if (clientX === false) return
       const durationContainerBoundingClientRect = timelineContainer.getBoundingClientRect()
       let durationContainerOffsetX = 0
       if ('x' in durationContainerBoundingClientRect) {
@@ -593,7 +593,7 @@ class UI {
       } else {
         durationContainerOffsetX = durationContainerBoundingClientRect.left
       }
-      let x = pageX - durationContainerOffsetX
+      let x = clientX - durationContainerOffsetX
       if (x < 0) x = 0
       if (x > durationContainerBoundingClientRect.width) { x = durationContainerBoundingClientRect.width }
 
