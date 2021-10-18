@@ -3,6 +3,10 @@
 @import 'volume-slider';
 @import 'seek-preview';
 
+#stroeer-videoplayer-default-ui-icons {
+	display: none;
+}
+
 .stroeer-videoplayer video {
     border-radius: 5px;
 }
