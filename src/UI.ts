@@ -330,7 +330,7 @@ class UI {
       }
     }
 
-    const exitFullscreenButtonIsHidden = isAlreadyInFullscreenMode() === false
+    const exitFullscreenButtonIsHidden = !isAlreadyInFullscreenMode()
 
     const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', exitFullscreenButtonIsHidden,
       [{
