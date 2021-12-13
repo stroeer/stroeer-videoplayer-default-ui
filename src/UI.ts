@@ -218,6 +218,11 @@ class UI {
       }
     })()
 
+    const dispatchEvent = (eventName: string, data?: any): void => {
+      const event = new CustomEvent(eventName, { detail: data })
+      videoEl.dispatchEvent(event)
+    }
+
     const showLoading = (modus: boolean): void => {
       if (modus) {
         showElement(loadingSpinnerContainer)
@@ -252,23 +257,68 @@ class UI {
 
     // Create the Buttons
     const playButton = this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', false,
-      [{ name: 'click', callb: () => { videoEl.play() } }])
+      [
+        {
+          name: 'click',
+          callb: () => {
+            dispatchEvent('UIPlay')
+            dispatchEvent('UIDefaultPlay')
+            videoEl.play()
+          }
+        }
+      ])
 
     if (videoEl.paused === false) {
       hideElement(playButton)
     }
 
     const replayButton = this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'Icon-Replay', true,
-      [{ name: 'click', callb: () => { videoEl.play() } }])
+      [
+        {
+          name: 'click',
+          callb: () => {
+            dispatchEvent('UIReplay')
+            dispatchEvent('UIDefaultReplay')
+            videoEl.play()
+          }
+        }
+      ])
 
     const pauseButton = this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'Icon-Pause', videoEl.paused,
-      [{ name: 'click', callb: () => { videoEl.pause() } }])
+      [
+        {
+          name: 'click',
+          callb: () => {
+            dispatchEvent('UIPause')
+            dispatchEvent('UIDefaultPause')
+            videoEl.pause()
+          }
+        }
+      ])
 
     const muteButton = this.createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'Icon-Volume', videoEl.muted,
-      [{ name: 'click', callb: () => { videoEl.muted = true } }])
+      [
+        {
+          name: 'click',
+          callb: () => {
+            dispatchEvent('UIMute')
+            dispatchEvent('UIDefaultMute')
+            videoEl.muted = true
+          }
+        }
+      ])
 
     const unmuteButton = this.createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'Icon-Mute', videoEl.muted !== true,
-      [{ name: 'click', callb: () => { videoEl.muted = false } }])
+      [
+        {
+          name: 'click',
+          callb: () => {
+            dispatchEvent('UIUnmute')
+            dispatchEvent('UIDefaultUnmute')
+            videoEl.muted = false
+          }
+        }
+      ])
 
     // Time Display
     const timeDisp = document.createElement('div')
@@ -310,6 +360,8 @@ class UI {
       [{
         name: 'click',
         callb: () => {
+          dispatchEvent('UIEnterFullscreen')
+          dispatchEvent('UIDefaultEnterFullscreen')
           StroeerVideoplayer.enterFullscreen()
         }
       }])
@@ -336,6 +388,8 @@ class UI {
       [{
         name: 'click',
         callb: () => {
+          dispatchEvent('UIExitFullscreen')
+          dispatchEvent('UIDefaultExitFullscreen')
           StroeerVideoplayer.exitFullscreen()
         }
       }])
@@ -348,11 +402,19 @@ class UI {
       }
 
       if (videoEl.paused === true) {
+        dispatchEvent('UIPlay')
+        dispatchEvent('UIDefaultPlay')
+        dispatchEvent('UIUIContainerPlay')
+        dispatchEvent('UIDefaultUIContainerPlay')
         videoEl.play()
       } else {
         if (isTouchDevice()) {
           return
         }
+        dispatchEvent('UIPause')
+        dispatchEvent('UIDefaultPause')
+        dispatchEvent('UIUIContainerPause')
+        dispatchEvent('UIDefaultUIContainerPause')
         videoEl.pause()
       }
     })
@@ -363,8 +425,16 @@ class UI {
 
     overlayContainer.addEventListener('click', (evt) => {
       if (videoEl.paused === true) {
+        dispatchEvent('UIPlay')
+        dispatchEvent('UIDefaultPlay')
+        dispatchEvent('UIOverlayContainerPlay')
+        dispatchEvent('UIDefaultOverlayContainerPlay')
         videoEl.play()
       } else {
+        dispatchEvent('UIPause')
+        dispatchEvent('UIDefaultPause')
+        dispatchEvent('UIOverlayContainerPause')
+        dispatchEvent('UIDefaultOverlayContainerPause')
         videoEl.pause()
       }
     })
@@ -629,12 +699,16 @@ class UI {
         case timelineContainer:
         case timelineElapsed:
         case timelineElapsedBubble:
+          dispatchEvent('UISeekStart', videoEl.currentTime)
+          dispatchEvent('UIDefaultSeekStart', videoEl.currentTime)
           videoEl.pause()
           draggingWhat = 'timeline'
           break
         case volumeRange:
         case volumeLevel:
         case volumeLevelBubble:
+          dispatchEvent('UIVolumeChangeStart', videoEl.volume)
+          dispatchEvent('UIDefaultVolumeChangeStart', videoEl.volume)
           draggingWhat = 'volume'
           break
         default:
@@ -647,11 +721,15 @@ class UI {
         draggingWhat = ''
         updateTimelineWhileDragging(evt)
         videoEl.currentTime = timelineElapsed.getAttribute('data-timeinseconds')
+        dispatchEvent('UISeekEnd', videoEl.currentTime)
+        dispatchEvent('UIDefaultSeekEnd', videoEl.currentTime)
         videoEl.play()
       }
       if (draggingWhat === 'volume') {
         draggingWhat = ''
         updateVolumeWhileDragging(evt)
+        dispatchEvent('UIVolumeChangeEnd', videoEl.volume)
+        dispatchEvent('UIDefaultVolumeChangeEnd', videoEl.volume)
       }
     }
 
