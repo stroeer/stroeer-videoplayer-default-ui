@@ -261,8 +261,8 @@ class UI {
         {
           name: 'click',
           callb: () => {
-            dispatchEvent('UIPlay')
-            dispatchEvent('UIDefaultPlay')
+            dispatchEvent('UIPlay', videoEl.currentTime)
+            dispatchEvent('UIDefaultPlay', videoEl.currentTime)
             videoEl.play()
           }
         }
@@ -277,8 +277,8 @@ class UI {
         {
           name: 'click',
           callb: () => {
-            dispatchEvent('UIReplay')
-            dispatchEvent('UIDefaultReplay')
+            dispatchEvent('UIReplay', videoEl.duration)
+            dispatchEvent('UIDefaultReplay', videoEl.duration)
             videoEl.play()
           }
         }
@@ -289,8 +289,8 @@ class UI {
         {
           name: 'click',
           callb: () => {
-            dispatchEvent('UIPause')
-            dispatchEvent('UIDefaultPause')
+            dispatchEvent('UIPause', videoEl.currentTime)
+            dispatchEvent('UIDefaultPause', videoEl.currentTime)
             videoEl.pause()
           }
         }
@@ -301,8 +301,8 @@ class UI {
         {
           name: 'click',
           callb: () => {
-            dispatchEvent('UIMute')
-            dispatchEvent('UIDefaultMute')
+            dispatchEvent('UIMute', videoEl.currentTime)
+            dispatchEvent('UIDefaultMute', videoEl.currentTime)
             videoEl.muted = true
           }
         }
@@ -313,8 +313,8 @@ class UI {
         {
           name: 'click',
           callb: () => {
-            dispatchEvent('UIUnmute')
-            dispatchEvent('UIDefaultUnmute')
+            dispatchEvent('UIUnmute', videoEl.currentTime)
+            dispatchEvent('UIDefaultUnmute', videoEl.currentTime)
             videoEl.muted = false
           }
         }
@@ -360,8 +360,8 @@ class UI {
       [{
         name: 'click',
         callb: () => {
-          dispatchEvent('UIEnterFullscreen')
-          dispatchEvent('UIDefaultEnterFullscreen')
+          dispatchEvent('UIEnterFullscreen', videoEl.currentTime)
+          dispatchEvent('UIDefaultEnterFullscreen', videoEl.currentTime)
           StroeerVideoplayer.enterFullscreen()
         }
       }])
@@ -388,8 +388,8 @@ class UI {
       [{
         name: 'click',
         callb: () => {
-          dispatchEvent('UIExitFullscreen')
-          dispatchEvent('UIDefaultExitFullscreen')
+          dispatchEvent('UIExitFullscreen', videoEl.currentTime)
+          dispatchEvent('UIDefaultExitFullscreen', videoEl.currentTime)
           StroeerVideoplayer.exitFullscreen()
         }
       }])
@@ -402,19 +402,19 @@ class UI {
       }
 
       if (videoEl.paused === true) {
-        dispatchEvent('UIPlay')
-        dispatchEvent('UIDefaultPlay')
-        dispatchEvent('UIUIContainerPlay')
-        dispatchEvent('UIDefaultUIContainerPlay')
+        dispatchEvent('UIPlay', videoEl.currentTime)
+        dispatchEvent('UIDefaultPlay', videoEl.currentTime)
+        dispatchEvent('UIUIContainerPlay', videoEl.currentTime)
+        dispatchEvent('UIDefaultUIContainerPlay', videoEl.currentTime)
         videoEl.play()
       } else {
         if (isTouchDevice()) {
           return
         }
-        dispatchEvent('UIPause')
-        dispatchEvent('UIDefaultPause')
-        dispatchEvent('UIUIContainerPause')
-        dispatchEvent('UIDefaultUIContainerPause')
+        dispatchEvent('UIPause', videoEl.currentTime)
+        dispatchEvent('UIDefaultPause', videoEl.currentTime)
+        dispatchEvent('UIUIContainerPause', videoEl.currentTime)
+        dispatchEvent('UIDefaultUIContainerPause', videoEl.currentTime)
         videoEl.pause()
       }
     })
@@ -425,16 +425,16 @@ class UI {
 
     overlayContainer.addEventListener('click', (evt) => {
       if (videoEl.paused === true) {
-        dispatchEvent('UIPlay')
-        dispatchEvent('UIDefaultPlay')
-        dispatchEvent('UIOverlayContainerPlay')
-        dispatchEvent('UIDefaultOverlayContainerPlay')
+        dispatchEvent('UIPlay', videoEl.currentTime)
+        dispatchEvent('UIDefaultPlay', videoEl.currentTime)
+        dispatchEvent('UIOverlayContainerPlay', videoEl.currentTime)
+        dispatchEvent('UIDefaultOverlayContainerPlay', videoEl.currentTime)
         videoEl.play()
       } else {
-        dispatchEvent('UIPause')
-        dispatchEvent('UIDefaultPause')
-        dispatchEvent('UIOverlayContainerPause')
-        dispatchEvent('UIDefaultOverlayContainerPause')
+        dispatchEvent('UIPause', videoEl.currentTime)
+        dispatchEvent('UIDefaultPause', videoEl.currentTime)
+        dispatchEvent('UIOverlayContainerPause', videoEl.currentTime)
+        dispatchEvent('UIDefaultOverlayContainerPause', videoEl.currentTime)
         videoEl.pause()
       }
     })
@@ -707,8 +707,14 @@ class UI {
         case volumeRange:
         case volumeLevel:
         case volumeLevelBubble:
-          dispatchEvent('UIVolumeChangeStart', videoEl.volume)
-          dispatchEvent('UIDefaultVolumeChangeStart', videoEl.volume)
+          dispatchEvent('UIVolumeChangeStart', {
+            volume: videoEl.volume,
+            currentTime: videoEl.currentTime
+          })
+          dispatchEvent('UIDefaultVolumeChangeStart', {
+            volume: videoEl.volume,
+            currentTime: videoEl.currentTime
+          })
           draggingWhat = 'volume'
           break
         default:
@@ -728,8 +734,14 @@ class UI {
       if (draggingWhat === 'volume') {
         draggingWhat = ''
         updateVolumeWhileDragging(evt)
-        dispatchEvent('UIVolumeChangeEnd', videoEl.volume)
-        dispatchEvent('UIDefaultVolumeChangeEnd', videoEl.volume)
+        dispatchEvent('UIVolumeChangeEnd', {
+          volume: videoEl.volume,
+          currentTime: videoEl.currentTime
+        })
+        dispatchEvent('UIDefaultVolumeChangeEnd', {
+          volume: videoEl.volume,
+          currentTime: videoEl.currentTime
+        })
       }
     }
 

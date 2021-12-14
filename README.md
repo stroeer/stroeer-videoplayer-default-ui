@@ -14,33 +14,33 @@ See coverage with `yarn run test --coverage`.
 
  - fullscreen
  - exitFullscreen
- - UIPlay
- - UIDefaultPlay
- - UIReplay
- - UIDefaultReplay
- - UIPause
- - UIDefaultPause
- - UIMute
- - UIDefaultMute
- - UIUnmute
- - UIDefaultUnmute
- - UIEnterFullscreen
- - UIDefaultEnterFullscreen
- - UIExitFullscreen
- - UIDefaultExitFullscreen
- - UIUIContainerPlay
- - UIDefaultUIContainerPlay
- - UIUIContainerPause
- - UIDefaultUIContainerPause
- - UIOverlayContainerPlay
- - UIDefaultOverlayContainerPlay
- - UIOverlayContainerPause
- - UIDefaultOverlayContainerPause
+ - UIPlay (currentTime)
+ - UIDefaultPlay (currentTime)
+ - UIReplay (currentTime)
+ - UIDefaultReplay (currentTime)
+ - UIPause (currentTime)
+ - UIDefaultPause (currentTime)
+ - UIMute (currentTime)
+ - UIDefaultMute (currentTime)
+ - UIUnmute (currentTime)
+ - UIDefaultUnmute (currentTime)
+ - UIEnterFullscreen (currentTime)
+ - UIDefaultEnterFullscreen (currentTime)
+ - UIExitFullscreen (currentTime)
+ - UIDefaultExitFullscreen (currentTime)
+ - UIUIContainerPlay (currentTime)
+ - UIDefaultUIContainerPlay (currentTime)
+ - UIUIContainerPause (currentTime)
+ - UIDefaultUIContainerPause (currentTime)
+ - UIOverlayContainerPlay (currentTime)
+ - UIDefaultOverlayContainerPlay (currentTime)
+ - UIOverlayContainerPause (currentTime)
+ - UIDefaultOverlayContainerPause (currentTime)
  - UISeekStart (currentTime)
  - UIDefaultSeekStart (currentTime)
  - UISeekEnd (currentTime)
  - UIDefaultSeekEnd (currentTime)
- - UIVolumeChangeStart (volume)
- - UIDefaultVolumeChangeStart (volume)
- - UIVolumeChangeEnd (volume)
- - UIDefaultVolumeChangeEnd (volume)
+ - UIVolumeChangeStart (volume, currentTime)
+ - UIDefaultVolumeChangeStart (volume, currentTime)
+ - UIVolumeChangeEnd (volume, currentTime)
+ - UIDefaultVolumeChangeEnd (volume, currentTime)
