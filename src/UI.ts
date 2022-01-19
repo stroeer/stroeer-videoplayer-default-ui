@@ -404,6 +404,7 @@ class UI {
       if (videoEl.paused === true) {
         dispatchEvent('UIPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultPlay', videoEl.currentTime)
+        dispatchEvent('UIDefaultResume', videoEl.currentTime)
         dispatchEvent('UIUIContainerPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultUIContainerPlay', videoEl.currentTime)
         videoEl.play()
@@ -427,6 +428,7 @@ class UI {
       if (videoEl.paused === true) {
         dispatchEvent('UIPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultPlay', videoEl.currentTime)
+        dispatchEvent('UIDefaultResume', videoEl.currentTime)
         dispatchEvent('UIOverlayContainerPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultOverlayContainerPlay', videoEl.currentTime)
         videoEl.play()
