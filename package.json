@@ -1,5 +1,5 @@
 {
- "version": "0.0.37",
+ "version": "0.0.38",
  "name": "@stroeer/stroeer-videoplayer-default-ui",
  "description": "Ströer Videoplayer Default UI",
  "main": "dist/StroeerVideoplayer-default-ui.cjs.js",
@@ -36,7 +36,7 @@
   "@rollup/plugin-json": "^4.1.0",
   "@rollup/plugin-node-resolve": "^11.2.0",
   "@rollup/plugin-typescript": "^8.1.0",
-  "@stroeer/stroeer-videoplayer": "^0.0.10",
+  "@stroeer/stroeer-videoplayer": "^0.0.16",
   "@superevilmegaco/jest-evil-svg-transformer": "^0.0.4",
   "@types/jest": "^26.0.24",
   "@types/mocha": "^9.0.0",

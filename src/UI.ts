@@ -133,6 +133,26 @@ class UI {
     }
   }
 
+  showErrorScreen = (StroeerVideoplayer: IStroeerVideoplayer, error: string): void => {
+    const videoEl = StroeerVideoplayer.getVideoEl()
+    videoEl.removeAttribute('controls')
+    const uiEl = StroeerVideoplayer.getUIEl()
+    if (uiEl.querySelector('.error') !== null) {
+      return
+    }
+    const height = videoEl.clientHeight
+    const width = videoEl.clientWidth
+    this.deinit(StroeerVideoplayer)
+    videoEl.parentNode.removeChild(videoEl)
+    const text = document.createElement('div')
+    text.innerHTML = error
+    uiEl.innerHTML = '<div class="error"></div>'
+    uiEl.firstChild.style.height = String(height) + 'px'
+    uiEl.firstChild.style.width = String(width) + 'px'
+    uiEl.firstChild.appendChild(SVGHelper('Icon-Error'))
+    uiEl.firstChild.appendChild(text)
+  }
+
   init = (StroeerVideoplayer: IStroeerVideoplayer): void => {
     const rootEl = StroeerVideoplayer.getRootEl()
     const videoEl = StroeerVideoplayer.getVideoEl()
@@ -148,6 +168,18 @@ class UI {
       uiIconsContainer.innerHTML = UIIcons
       document.body.appendChild(uiIconsContainer)
     }
+
+    videoEl.addEventListener('hlsNetworkError', (evt: any) => {
+      switch (evt.detail.response.code) {
+        case 403:
+          this.showErrorScreen(StroeerVideoplayer, 'Dieses Video ist in Ihrem Land nicht verfügbar.<br/>This content is not available in your country.')
+          break
+        case 0:
+        case 404:
+          this.showErrorScreen(StroeerVideoplayer, 'Dieses Video steht aktuell <strong>nicht zur Verfügung.</strong>')
+          break
+      }
+    })
 
     const uiContainer = document.createElement('div')
     const loadingSpinnerContainer = document.createElement('div')
@@ -263,6 +295,10 @@ class UI {
           callb: () => {
             dispatchEvent('UIPlay', videoEl.currentTime)
             dispatchEvent('UIDefaultPlay', videoEl.currentTime)
+            if (videoEl.currentTime > 0) {
+              dispatchEvent('UIResume', videoEl.currentTime)
+              dispatchEvent('UIDefaultResume', videoEl.currentTime)
+            }
             videoEl.play()
           }
         }
@@ -404,7 +440,10 @@ class UI {
       if (videoEl.paused === true) {
         dispatchEvent('UIPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultPlay', videoEl.currentTime)
-        dispatchEvent('UIDefaultResume', videoEl.currentTime)
+        if (videoEl.currentTime > 0) {
+          dispatchEvent('UIResume', videoEl.currentTime)
+          dispatchEvent('UIDefaultResume', videoEl.currentTime)
+        }
         dispatchEvent('UIUIContainerPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultUIContainerPlay', videoEl.currentTime)
         videoEl.play()
@@ -428,7 +467,10 @@ class UI {
       if (videoEl.paused === true) {
         dispatchEvent('UIPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultPlay', videoEl.currentTime)
-        dispatchEvent('UIDefaultResume', videoEl.currentTime)
+        if (videoEl.currentTime > 0) {
+          dispatchEvent('UIResume', videoEl.currentTime)
+          dispatchEvent('UIDefaultResume', videoEl.currentTime)
+        }
         dispatchEvent('UIOverlayContainerPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultOverlayContainerPlay', videoEl.currentTime)
         videoEl.play()

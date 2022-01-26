@@ -734,10 +734,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@stroeer/stroeer-videoplayer@^0.0.10":
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@stroeer/stroeer-videoplayer/-/stroeer-videoplayer-0.0.10.tgz#bd154a83056401fd03b9663e74ba624b0959a211"
-  integrity sha512-1Jz5R0uwq+9DP/SmJDmkccIX2fuvT/Ajd6yGcr8Ab1pljp5Q2eckVtEXUWWLcnlrkpZhnGLMHv2Ou0KMCd7t8g==
+"@stroeer/stroeer-videoplayer@^0.0.16":
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/@stroeer/stroeer-videoplayer/-/stroeer-videoplayer-0.0.16.tgz#3e67ba4b66663ac844e4dcbf33cb040d1dda0e5d"
+  integrity sha512-utNsz3utNz0kQWgbO7CcW1ZUAgbh1QxBr4EpI+5zdhaZcE6KnXGr1qozs3qlUTQAbRbLWF4aUBvtw6xCjqukPw==
   dependencies:
     hls.js "^1.0.8"
 
