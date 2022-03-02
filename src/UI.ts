@@ -7,6 +7,7 @@ interface IStroeerVideoplayer {
   getUIEl: Function
   getRootEl: Function
   getVideoEl: Function
+  getHls: any
   getHlsJs: any
   loading: Function
   showBigPlayButton: Function
@@ -143,6 +144,7 @@ class UI {
     const height = videoEl.clientHeight
     const width = videoEl.clientWidth
     this.deinit(StroeerVideoplayer)
+    StroeerVideoplayer.getHls().destroy()
     videoEl.parentNode.removeChild(videoEl)
     const text = document.createElement('div')
     text.innerHTML = error
