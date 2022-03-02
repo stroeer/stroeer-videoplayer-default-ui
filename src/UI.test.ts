@@ -70,6 +70,15 @@ class StroeerVideoplayer {
   exitFullscreen = (): void => {
   }
 
+  getHls = (): any => {
+    const mock = (): any => {
+      return {
+        destroy: () => {}
+      }
+    }
+    return mock
+  }
+
   getHlsJs = (): any => {
     const mock = (): any => {
       return {
