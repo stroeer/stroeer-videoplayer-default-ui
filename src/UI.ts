@@ -63,6 +63,7 @@ class UI {
   toggleVolumeBarInterval: ReturnType<typeof setInterval>
   isMouseDown: Boolean
   hls: any
+  hlsErrorOccured: Boolean
 
   constructor () {
     this.version = version
@@ -81,6 +82,7 @@ class UI {
     this.toggleVolumeBarInterval = setInterval(noop, 1000)
     this.isMouseDown = false
     this.hls = null
+    this.hlsErrorOccured = false
 
     return this
   }
@@ -144,7 +146,15 @@ class UI {
     const height = videoEl.clientHeight
     const width = videoEl.clientWidth
     this.deinit(StroeerVideoplayer)
-    StroeerVideoplayer.getHls().destroy()
+
+    this.hlsErrorOccured = true
+    if (this.hls !== null) {
+      this.hls.destroy()
+    }
+    if (StroeerVideoplayer.getHls() !== null) {
+      StroeerVideoplayer.getHls().destroy()
+    }
+
     videoEl.parentNode.removeChild(videoEl)
     const text = document.createElement('div')
     text.innerHTML = error
@@ -179,6 +189,9 @@ class UI {
         case 0:
         case 404:
           this.showErrorScreen(StroeerVideoplayer, 'Dieses Video steht aktuell <strong>nicht zur Verfügung.</strong>')
+          break
+        default:
+          console.log('Unhandled HLS Network Error:', evt.detail.response)
           break
       }
     })
@@ -490,6 +503,9 @@ class UI {
       if (isTouchDevice()) {
         return
       }
+      if (this.hlsErrorOccured === true) {
+        return
+      }
       // it makes no sense to show a preview of the current frames of the video playing,
       // so we bail out here..
       if (evt.target === timelineElapsedBubble) {
@@ -506,30 +522,14 @@ class UI {
             this.hls.destroy()
             this.hls = null
           }
-          const hls = new HlsJs()
-          this.hls = hls
-          hls.loadSource(videoSource.src)
-          hls.attachMedia(seekPreviewVideo)
+          this.hls = new HlsJs()
+          this.hls.loadSource(videoSource.src)
+          this.hls.attachMedia(seekPreviewVideo)
 
           this.hls.on(HlsJs.Events.ERROR, (event: any, data: any) => {
-            console.log(event, data)
-            if (data.fatal !== undefined) {
-              switch (data.type) {
-                case HlsJs.ErrorTypes.NETWORK_ERROR:
-                  // try to recover network error
-                  console.log('fatal network error encountered, try to recover')
-                  hls.startLoad()
-                  break
-                case HlsJs.ErrorTypes.MEDIA_ERROR:
-                  console.log('fatal media error encountered, try to recover')
-                  hls.recoverMediaError()
-                  break
-                default:
-                  // cannot recover
-                  hls.destroy()
-                  break
-              }
-            }
+            this.hlsErrorOccured = true
+            this.hls.destroy()
+            this.hls = null
           })
         }
       } else {
