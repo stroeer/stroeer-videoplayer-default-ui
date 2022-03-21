@@ -13,6 +13,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+          registry-url: 'https://registry.npmjs.org'
       - run: yarn install --frozen-lockfile || exit 1
       - run: yarn lint || exit 2
       - run: yarn test || exit 3
