@@ -679,11 +679,12 @@ class UI {
         }
       }
       if (clientY === false) return
-      const volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect()
+      const volumeRangeBoundingClientRect: any = volumeRange.getBoundingClientRect()
       let volumeContainerOffsetY = 0
       if ('y' in volumeRangeBoundingClientRect) {
         volumeContainerOffsetY = volumeRangeBoundingClientRect.y
       } else {
+        // @eslint-ignore-line
         volumeContainerOffsetY = volumeRangeBoundingClientRect.top
       }
       let y = clientY - volumeContainerOffsetY
@@ -716,7 +717,7 @@ class UI {
         }
       }
       if (clientX === false) return
-      const durationContainerBoundingClientRect = timelineContainer.getBoundingClientRect()
+      const durationContainerBoundingClientRect: any = timelineContainer.getBoundingClientRect()
       let durationContainerOffsetX = 0
       if ('x' in durationContainerBoundingClientRect) {
         durationContainerOffsetX = durationContainerBoundingClientRect.x
