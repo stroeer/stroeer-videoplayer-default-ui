@@ -2,6 +2,7 @@ import { version } from '../package.json'
 import UIIcons from './sprites/svg/sprite.symbol.svg'
 import noop from './noop'
 import SVGHelper from './SVGHelper'
+import Logger from './Logger'
 
 interface IStroeerVideoplayer {
   getUIEl: Function
@@ -47,8 +48,8 @@ const showElement = (element: HTMLElement): void => {
 }
 
 class UI {
-  version: string
-  uiName: string
+  public static version: string = version
+  public static uiName: string = 'default'
   uiContainerClassName: string
   onDocumentFullscreenChange: Function
   onVideoElPlay: Function
@@ -66,8 +67,6 @@ class UI {
   hlsErrorOccured: Boolean
 
   constructor () {
-    this.version = version
-    this.uiName = 'default'
     this.uiContainerClassName = 'default'
     this.onDocumentFullscreenChange = noop
     this.onVideoElPlay = noop
@@ -166,6 +165,7 @@ class UI {
   }
 
   init = (StroeerVideoplayer: IStroeerVideoplayer): void => {
+    Logger.log('version', version)
     const rootEl = StroeerVideoplayer.getRootEl()
     const videoEl = StroeerVideoplayer.getVideoEl()
     videoEl.removeAttribute('controls')
@@ -926,6 +926,4 @@ class UI {
   }
 }
 
-const StroeerVideoplayerDefaultUI = new UI()
-
-export default StroeerVideoplayerDefaultUI
+export default UI

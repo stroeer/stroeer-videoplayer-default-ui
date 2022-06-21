@@ -792,12 +792,12 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@stroeer/stroeer-videoplayer@0.0.21":
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/@stroeer/stroeer-videoplayer/-/stroeer-videoplayer-0.0.21.tgz#ba2837336807970860ae61bc8c6e33f08f967d30"
-  integrity sha512-0x8GWhAFkJhtfufItlLe+Y2exuidNDhvoGwCtlbdPRyNZitsc+ek56De+xzezAajcDfQ8fF9rleFk3qxZh5OZw==
+"@stroeer/stroeer-videoplayer@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@stroeer/stroeer-videoplayer/-/stroeer-videoplayer-1.0.1.tgz#df318af37c85922107eadf6bc5481f33bdf2d262"
+  integrity sha512-IA3D/DNBQELGo7RxBIXrFbOILD7mxNMMGOlXBfOTNxMVd3twCrgHoxAfX/TlGfCRxuBcASejNQYGKpegK43Lig==
   dependencies:
-    hls.js "^1.0.8"
+    hls.js "1.1.5"
 
 "@superevilmegaco/jest-evil-svg-transformer@0.0.4":
   version "0.0.4"
@@ -3172,7 +3172,7 @@ hasha@^2.2.0:
     is-stream "^1.0.1"
     pinkie-promise "^2.0.0"
 
-hls.js@^1.0.8:
+hls.js@1.1.5:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.1.5.tgz#923a8a8cfdf09542578696d47c8ae435da981ffd"
   integrity sha512-mQX5TSNtJEzGo5HPpvcQgCu+BWoKDQM6YYtg/KbgWkmVAcqOCvSTi0SuqG2ZJLXxIzdnFcKU2z7Mrw/YQWhPOA==
