@@ -644,10 +644,6 @@ class UI {
       this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
     })
 
-    if (videoEl.paused === true && videoEl.currentTime === 0) {
-      videoEl.load()
-    }
-
     this.onVideoElTimeupdate = () => {
       const percentage = videoEl.currentTime / videoEl.duration * 100
       const percentageString = String(percentage)

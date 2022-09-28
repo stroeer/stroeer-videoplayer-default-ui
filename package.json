@@ -1,5 +1,5 @@
 {
- "version": "1.1.0",
+ "version": "2.0.0",
  "name": "@stroeer/stroeer-videoplayer-default-ui",
  "description": "Ströer Videoplayer Default UI",
  "main": "dist/StroeerVideoplayer-default-ui.cjs.js",
