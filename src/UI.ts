@@ -3,6 +3,7 @@ import UIIcons from './sprites/svg/sprite.symbol.svg'
 import noop from './noop'
 import SVGHelper from './SVGHelper'
 import Logger from './Logger'
+import { isTouchDevice, hideElement, showElement, convertLocalStorageIntegerToBoolean, convertLocalStorageStringToNumber } from './utils'
 
 interface IStroeerVideoplayer {
   getUIEl: Function
@@ -31,20 +32,6 @@ declare global {
     mozRequestFullscreen?: () => Promise<void>
     webkitRequestFullscreen?: () => Promise<void>
   }
-}
-
-const isTouchDevice = (): boolean => {
-  return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0))
-}
-
-const hideElement = (element: HTMLElement): void => {
-  element.classList.add('hidden')
-  element.setAttribute('aria-hidden', 'true')
-}
-
-const showElement = (element: HTMLElement): void => {
-  element.classList.remove('hidden')
-  element.removeAttribute('aria-hidden')
 }
 
 class UI {
@@ -166,8 +153,13 @@ class UI {
 
   init = (StroeerVideoplayer: IStroeerVideoplayer): void => {
     Logger.log('version', version)
+
     const rootEl = StroeerVideoplayer.getRootEl()
     const videoEl = StroeerVideoplayer.getVideoEl()
+
+    videoEl.muted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted')
+    videoEl.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume')
+
     videoEl.removeAttribute('controls')
     const uiEl = StroeerVideoplayer.getUIEl()
     if (uiEl.querySelector('.' + this.uiContainerClassName) !== null) {
@@ -361,6 +353,7 @@ class UI {
             dispatchEvent('UIMute', videoEl.currentTime)
             dispatchEvent('UIDefaultMute', videoEl.currentTime)
             videoEl.muted = true
+            window.localStorage.setItem('StroeerVideoplayerMuted', '1')
           }
         }
       ])
@@ -373,6 +366,7 @@ class UI {
             dispatchEvent('UIUnmute', videoEl.currentTime)
             dispatchEvent('UIDefaultUnmute', videoEl.currentTime)
             videoEl.muted = false
+            window.localStorage.setItem('StroeerVideoplayerMuted', '0')
           }
         }
       ])
@@ -703,6 +697,7 @@ class UI {
       }
       const volume = percentageHeight / 100
       videoEl.volume = volume
+      window.localStorage.setItem('StroeerVideoplayerVolume', volume.toFixed(2))
     }
     const calulateDurationPercentageBasedOnXCoords = (x: number): number => {
       const percentage = (100 / timelineContainer.offsetWidth) * x
