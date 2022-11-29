@@ -655,14 +655,12 @@ class UI {
     }
     videoEl.addEventListener('pause', this.onVideoElPause)
 
-    videoEl.addEventListener('loadedmetadata', () => {
-      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
-    })
+    this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.dataset.duration)
 
     this.onVideoElTimeupdate = () => {
       const percentage = videoEl.currentTime / videoEl.duration * 100
       const percentageString = String(percentage)
-      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration)
+      this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.dataset.duration)
 
       timelineElapsed.style.width = percentageString + '%'
       timelineElapsedBubble.style.left = percentageString + '%'
