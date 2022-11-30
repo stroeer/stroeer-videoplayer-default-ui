@@ -538,15 +538,15 @@ class UI {
         }
       }
 
-      const caluclatedMaxRight = timelineContainer.offsetWidth - seekPreviewContainer.offsetWidth
-      let caluclatedLeft = evt.offsetX - seekPreviewContainer.offsetWidth / 2
-      if (caluclatedLeft < 0) {
-        caluclatedLeft = 0
+      const calculatedMaxRight = timelineContainer.offsetWidth - seekPreviewContainer.offsetWidth
+      let calculatedLeft = evt.offsetX - seekPreviewContainer.offsetWidth / 2
+      if (calculatedLeft < 0) {
+        calculatedLeft = 0
       }
-      if (caluclatedLeft > caluclatedMaxRight) {
-        caluclatedLeft = caluclatedMaxRight
+      if (calculatedLeft > calculatedMaxRight) {
+        calculatedLeft = calculatedMaxRight
       }
-      seekPreviewContainer.style.left = String(caluclatedLeft) + 'px'
+      seekPreviewContainer.style.transform = `translateX(${calculatedLeft}px)`
       const x = evt.offsetX
       const vd = videoEl.duration
       const elWidth = timelineContainer.offsetWidth
