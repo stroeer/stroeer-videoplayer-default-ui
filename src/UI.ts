@@ -502,7 +502,7 @@ class UI {
 
     timelineContainer.addEventListener('mousemove', (evt) => {
       // only for desktop devices
-      if (isTouchDevice()) {
+      if (isTouchDevice() || videoEl.currentTime === 0) {
         return
       }
       if (this.hlsErrorOccured === true) {
@@ -550,7 +550,7 @@ class UI {
       }
       seekPreviewContainer.style.left = String(caluclatedLeft) + 'px'
       const x = evt.offsetX
-      const vd = videoEl.duration
+      const vd = videoEl.dataset.duration
       const elWidth = timelineContainer.offsetWidth
       const val = (100 / elWidth) * x
       const time = (vd / 100) * val
