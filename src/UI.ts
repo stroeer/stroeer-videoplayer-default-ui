@@ -44,7 +44,7 @@ class UI {
   onLoadedMetaData: Function
   onVideoElTimeupdate: Function
   onVideoElVolumeChange: Function
-  onVolumeChange: Function
+  onImaVolumeChange: Function
   onDragStart: EventListener
   onDrag: EventListener
   onDragEnd: EventListener
@@ -62,7 +62,7 @@ class UI {
     this.onVideoElTimeupdate = noop
     this.onVideoElVolumeChange = noop
     this.onLoadedMetaData = noop
-    this.onVolumeChange = noop
+    this.onImaVolumeChange = noop
     this.onDragStart = noop
     this.onDrag = noop
     this.onDragEnd = noop
@@ -631,7 +631,7 @@ class UI {
     }
     videoEl.addEventListener('play', this.onVideoElPlay)
 
-    this.onVolumeChange = (event: any) => {
+    this.onImaVolumeChange = (event: any) => {
       Logger.log('ima volume change ')
       videoEl.muted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted')
       videoEl.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume')
@@ -640,9 +640,9 @@ class UI {
       volumeLevelBubble.style.top = 'auto'
       volumeLevel.style.height = String(volumeInPercent) + '%'
     }
-    videoEl.addEventListener('uiima:volumeChangeEnd', this.onVolumeChange)
-    videoEl.addEventListener('uiima:unmute', this.onVolumeChange)
-    videoEl.addEventListener('uiima:mute', this.onVolumeChange)
+    videoEl.addEventListener('uiima:volumeChangeEnd', this.onImaVolumeChange)
+    videoEl.addEventListener('uiima:unmute', this.onImaVolumeChange)
+    videoEl.addEventListener('uiima:mute', this.onImaVolumeChange)
 
     this.onVideoElPause = () => {
       if (videoEl.duration === videoEl.currentTime) {
@@ -911,9 +911,9 @@ class UI {
       videoEl.removeEventListener('pause', this.onVideoElPause)
       videoEl.removeEventListener('timeupdate', this.onVideoElTimeupdate)
       videoEl.removeEventListener('volumechange', this.onVideoElVolumeChange)
-      videoEl.removeEventListener('uiima:volumeChangeEnd', this.onVolumeChange)
-      videoEl.removeEventListener('uiima:unmute', this.onVolumeChange)
-      videoEl.removeEventListener('uiima:mute', this.onVolumeChange)
+      videoEl.removeEventListener('uiima:volumeChangeEnd', this.onImaVolumeChange)
+      videoEl.removeEventListener('uiima:unmute', this.onImaVolumeChange)
+      videoEl.removeEventListener('uiima:mute', this.onImaVolumeChange)
       document.body.removeEventListener('touchstart', this.onDragStart)
       document.body.removeEventListener('touchend', this.onDragEnd)
       document.body.removeEventListener('touchmove', this.onDrag)
