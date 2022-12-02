@@ -44,6 +44,7 @@ class UI {
   onLoadedMetaData: Function
   onVideoElTimeupdate: Function
   onVideoElVolumeChange: Function
+  onImaVolumeChange: Function
   onDragStart: EventListener
   onDrag: EventListener
   onDragEnd: EventListener
@@ -61,6 +62,7 @@ class UI {
     this.onVideoElTimeupdate = noop
     this.onVideoElVolumeChange = noop
     this.onLoadedMetaData = noop
+    this.onImaVolumeChange = noop
     this.onDragStart = noop
     this.onDrag = noop
     this.onDragEnd = noop
@@ -629,6 +631,19 @@ class UI {
     }
     videoEl.addEventListener('play', this.onVideoElPlay)
 
+    this.onImaVolumeChange = (event: any) => {
+      Logger.log('ima volume change ')
+      videoEl.muted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted')
+      videoEl.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume')
+      const volumeInPercent = videoEl.volume * 100
+      volumeLevelBubble.style.bottom = 'calc(' + String(volumeInPercent) + '% - 4px)'
+      volumeLevelBubble.style.top = 'auto'
+      volumeLevel.style.height = String(volumeInPercent) + '%'
+    }
+    videoEl.addEventListener('uiima:volumeChangeEnd', this.onImaVolumeChange)
+    videoEl.addEventListener('uiima:unmute', this.onImaVolumeChange)
+    videoEl.addEventListener('uiima:mute', this.onImaVolumeChange)
+
     this.onVideoElPause = () => {
       if (videoEl.duration === videoEl.currentTime) {
         showElement(replayButton)
@@ -655,7 +670,7 @@ class UI {
     // set initial value of volume bar
     volumeLevel.style.height = String(videoEl.volume * 100) + '%'
     if (videoEl.volume <= 0.9) {
-      volumeLevelBubble.style.bottom = String(videoEl.volume * 100) + '%'
+      volumeLevelBubble.style.bottom = 'calc(' + String(videoEl.volume * 100) + '% - 4px)'
     }
 
     const calulateVolumePercentageBasedOnYCoords = (y: number): number => {
@@ -896,6 +911,9 @@ class UI {
       videoEl.removeEventListener('pause', this.onVideoElPause)
       videoEl.removeEventListener('timeupdate', this.onVideoElTimeupdate)
       videoEl.removeEventListener('volumechange', this.onVideoElVolumeChange)
+      videoEl.removeEventListener('uiima:volumeChangeEnd', this.onImaVolumeChange)
+      videoEl.removeEventListener('uiima:unmute', this.onImaVolumeChange)
+      videoEl.removeEventListener('uiima:mute', this.onImaVolumeChange)
       document.body.removeEventListener('touchstart', this.onDragStart)
       document.body.removeEventListener('touchend', this.onDragEnd)
       document.body.removeEventListener('touchmove', this.onDrag)
