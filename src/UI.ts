@@ -290,10 +290,6 @@ class UI {
       showBigPlayButton(modus)
     }
 
-    videoEl.addEventListener('waiting', () => {
-      showLoading(true)
-    })
-
     videoEl.addEventListener('canplay', () => {
       showLoading(false)
     })
