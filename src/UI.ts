@@ -201,6 +201,7 @@ class UI {
     const seekPreviewTimeDivider = document.createElement('span')
     const seekPreviewTimeSeconds = document.createElement('span')
     const timelineContainer = document.createElement('div')
+    const timelineBackground = document.createElement('div')
     const timelineElapsed = document.createElement('div')
     const timelineElapsedBubble = document.createElement('div')
     const volumeContainer = document.createElement('div')
@@ -242,6 +243,7 @@ class UI {
     loadingSpinnerContainer.appendChild(loadingSpinnerAnimation)
     controlBar.className = 'controlbar'
     timelineContainer.className = 'timeline'
+    timelineBackground.className = 'background'
     timelineElapsed.className = 'elapsed'
     timelineElapsedBubble.className = 'elapsed-bubble'
     buttonsContainer.className = 'buttons'
@@ -540,15 +542,15 @@ class UI {
         }
       }
 
-      const caluclatedMaxRight = timelineContainer.offsetWidth - seekPreviewContainer.offsetWidth
-      let caluclatedLeft = evt.offsetX - seekPreviewContainer.offsetWidth / 2
-      if (caluclatedLeft < 0) {
-        caluclatedLeft = 0
+      const calculatedMaxRight = timelineContainer.offsetWidth - seekPreviewContainer.offsetWidth
+      let calculatedLeft = evt.offsetX - seekPreviewContainer.offsetWidth / 2
+      if (calculatedLeft < 0) {
+        calculatedLeft = 0
       }
-      if (caluclatedLeft > caluclatedMaxRight) {
-        caluclatedLeft = caluclatedMaxRight
+      if (calculatedLeft > calculatedMaxRight) {
+        calculatedLeft = calculatedMaxRight
       }
-      seekPreviewContainer.style.left = String(caluclatedLeft) + 'px'
+      seekPreviewContainer.style.transform = `translateX(${calculatedLeft}px)`
       const x = evt.offsetX
       const vd = videoEl.dataset.duration
       const elWidth = timelineContainer.offsetWidth
@@ -561,7 +563,7 @@ class UI {
       showElement(seekPreviewContainer)
     })
 
-    timelineContainer.addEventListener('mouseout', (evt) => {
+    timelineContainer.addEventListener('mouseout', () => {
       // only for desktop devices
       if (isTouchDevice()) {
         return
@@ -570,7 +572,8 @@ class UI {
     })
 
     timelineContainer.appendChild(seekPreviewContainer)
-    timelineContainer.appendChild(timelineElapsed)
+    timelineContainer.appendChild(timelineBackground)
+    timelineBackground.appendChild(timelineElapsed)
     timelineContainer.appendChild(timelineElapsedBubble)
     controlBar.appendChild(timelineContainer)
     controlBar.appendChild(buttonsContainer)
@@ -659,11 +662,11 @@ class UI {
 
     this.onVideoElTimeupdate = () => {
       const percentage = videoEl.currentTime / videoEl.duration * 100
-      const percentageString = String(percentage)
+      const bubblePosition = percentage / 100 * timelineContainer.offsetWidth
       this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.dataset.duration)
 
-      timelineElapsed.style.width = percentageString + '%'
-      timelineElapsedBubble.style.left = percentageString + '%'
+      timelineElapsed.style.transform = `scaleX(${percentage}%)`
+      timelineElapsedBubble.style.transform = `translateX(${bubblePosition}px)`
     }
     videoEl.addEventListener('timeupdate', this.onVideoElTimeupdate)
 
@@ -739,13 +742,13 @@ class UI {
       if (x > durationContainerBoundingClientRect.width) { x = durationContainerBoundingClientRect.width }
 
       const percentageX = calulateDurationPercentageBasedOnXCoords(x)
-      const percentageXString = String(percentageX)
-      timelineElapsedBubble.style.left = percentageXString + '%'
-      timelineElapsed.style.width = percentageXString + '%'
+      const bubblePosition = percentageX / 100 * timelineContainer.offsetWidth
+      timelineElapsed.style.transform = `scaleX(${percentageX}%)`
+      timelineElapsedBubble.style.transform = `translateX(${bubblePosition}px)`
       const ve = videoEl
       const vd = ve.duration
       const percentageTime = (vd / 100) * percentageX
-      timelineElapsed.setAttribute('data-percentage', percentageXString)
+      timelineElapsed.setAttribute('data-percentage', String(percentageX))
       timelineElapsed.setAttribute('data-timeinseconds', String(percentageTime))
     }
 
