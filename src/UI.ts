@@ -653,7 +653,9 @@ class UI {
       } else {
         showElement(playButton)
       }
-      showElement(overlayContainer)
+      if (loadingSpinnerContainer.classList.contains('hidden')) {
+        showElement(overlayContainer)
+      }
       hideElement(pauseButton)
     }
     videoEl.addEventListener('pause', this.onVideoElPause)
