@@ -520,13 +520,18 @@ class UI {
       const HlsJs = StroeerVideoplayer.getHlsJs()
       const canPlayNativeHls = videoEl.canPlayType('application/vnd.apple.mpegurl') === 'probably' || videoEl.canPlayType('application/vnd.apple.mpegurl') === 'maybe'
 
-      if (!canPlayNativeHls && HlsJs.isSupported() === true) {
+      if (HlsJs.isSupported() === true) {
         if (this.hls === null || (this.hls !== null && this.hls.url !== videoSource.src)) {
           if (this.hls !== null) {
             this.hls.destroy()
             this.hls = null
           }
-          this.hls = new HlsJs()
+          this.hls = new HlsJs({
+            maxBufferSize: 0,
+            maxBufferLength: 10,
+            capLevelToPlayerSize: true,
+            autoStartLoad: false
+          })
           this.hls.loadSource(videoSource.src)
           this.hls.attachMedia(seekPreviewVideo)
 
@@ -536,10 +541,13 @@ class UI {
             this.hls = null
           })
         }
-      } else {
+      } else if (canPlayNativeHls) {
         if (seekPreviewVideo.src !== videoSource.src) {
           seekPreviewVideo.src = videoSource.src
         }
+      } else {
+        console.error('Error trying to create seek preview: No HLS Support found')
+        return
       }
 
       const calculatedMaxRight = timelineContainer.offsetWidth - seekPreviewContainer.offsetWidth
