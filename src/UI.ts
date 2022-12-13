@@ -530,7 +530,7 @@ class UI {
             maxBufferSize: 0,
             maxBufferLength: 10,
             capLevelToPlayerSize: true,
-            autoStartLoad: false
+            autoStartLoad: true
           })
           this.hls.loadSource(videoSource.src)
           this.hls.attachMedia(seekPreviewVideo)
