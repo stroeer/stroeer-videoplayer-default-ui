@@ -516,12 +516,12 @@ class UI {
         hideElement(seekPreviewContainer)
         return
       }
-      const videoSource = videoEl.querySelector('source')
+      const videoSource = videoEl.dataset.src as string
       const HlsJs = StroeerVideoplayer.getHlsJs()
       const canPlayNativeHls = videoEl.canPlayType('application/vnd.apple.mpegurl') === 'probably' || videoEl.canPlayType('application/vnd.apple.mpegurl') === 'maybe'
 
       if (HlsJs.isSupported() === true) {
-        if (this.hls === null || (this.hls !== null && this.hls.url !== videoSource.src)) {
+        if (this.hls === null || (this.hls !== null && this.hls.url !== videoSource)) {
           if (this.hls !== null) {
             this.hls.destroy()
             this.hls = null
@@ -532,7 +532,7 @@ class UI {
             capLevelToPlayerSize: true,
             autoStartLoad: true
           })
-          this.hls.loadSource(videoSource.src)
+          this.hls.loadSource(videoSource)
           this.hls.attachMedia(seekPreviewVideo)
 
           this.hls.on(HlsJs.Events.ERROR, (event: any, data: any) => {
@@ -542,8 +542,8 @@ class UI {
           })
         }
       } else if (canPlayNativeHls) {
-        if (seekPreviewVideo.src !== videoSource.src) {
-          seekPreviewVideo.src = videoSource.src
+        if (seekPreviewVideo.src !== videoSource) {
+          seekPreviewVideo.src = videoSource
         }
       } else {
         console.error('Error trying to create seek preview: No HLS Support found')
