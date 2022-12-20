@@ -29,10 +29,7 @@ uiEl.classList.add('stroeer-videoplayer-ui')
 const videoEl = document.createElement('video')
 videoEl.setAttribute('controls', '')
 Object.defineProperty(videoEl, 'duration', { value: 10 })
-const source1 = document.createElement('source')
-source1.type = 'video/mp4'
-source1.src = 'https://evilcdn.net/demo-videos/walialu-44s-testspot-longboarding-240p.mp4'
-videoEl.appendChild(source1)
+videoEl.dataset.src = 'https://evilcdn.net/demo-videos/walialu-44s-testspot-longboarding-240p.mp4'
 rootEl.appendChild(uiEl)
 rootEl.appendChild(videoEl)
 document.body.appendChild(rootEl)
