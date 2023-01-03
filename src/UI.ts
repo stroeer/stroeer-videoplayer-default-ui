@@ -778,7 +778,6 @@ class UI {
         case timelineElapsedBubble:
           dispatchEvent('UISeekStart', videoEl.currentTime)
           dispatchEvent('UIDefaultSeekStart', videoEl.currentTime)
-          //          if (this.playPromiseOpen === false) videoEl.pause()
           draggingWhat = 'timeline'
           break
         case volumeRange:
