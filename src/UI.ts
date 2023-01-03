@@ -348,7 +348,7 @@ class UI {
           callb: () => {
             dispatchEvent('UIPause', videoEl.currentTime)
             dispatchEvent('UIDefaultPause', videoEl.currentTime)
-            if (this.playPromiseOpen === false) videoEl.pause()
+            videoEl.pause()
           }
         }
       ])
