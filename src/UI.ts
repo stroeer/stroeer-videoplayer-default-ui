@@ -802,9 +802,9 @@ class UI {
       if (draggingWhat === 'timeline') {
         draggingWhat = ''
         updateTimelineWhileDragging(evt)
-        let curtime = timelineElapsed.getAttribute('data-timeinseconds')
-        if (curtime === null) curtime = '0.0'
-        videoEl.currentTime = parseFloat(curtime)
+        let currentTime = timelineElapsed.getAttribute('data-timeinseconds')
+        if (currentTime === null) currentTime = '0.0'
+        videoEl.currentTime = parseFloat(currentTime)
         dispatchEvent('UISeekEnd', videoEl.currentTime)
         dispatchEvent('UIDefaultSeekEnd', videoEl.currentTime)
         this.playPromiseOpen = true
