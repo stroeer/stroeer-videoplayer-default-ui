@@ -53,6 +53,7 @@ class UI {
   isMouseDown: Boolean
   hls: any
   hlsErrorOccured: Boolean
+  playPromiseOpen: Boolean
 
   constructor () {
     this.uiContainerClassName = 'default'
@@ -71,6 +72,7 @@ class UI {
     this.isMouseDown = false
     this.hls = null
     this.hlsErrorOccured = false
+    this.playPromiseOpen = false
 
     return this
   }
@@ -318,7 +320,8 @@ class UI {
               dispatchEvent('UIResume', videoEl.currentTime)
               dispatchEvent('UIDefaultResume', videoEl.currentTime)
             }
-            videoEl.play()
+            this.playPromiseOpen = true
+            videoEl.play().then(() => { this.playPromiseOpen = false })
           }
         }
       ])
@@ -334,7 +337,8 @@ class UI {
           callb: () => {
             dispatchEvent('UIReplay', videoEl.duration)
             dispatchEvent('UIDefaultReplay', videoEl.duration)
-            videoEl.play()
+            this.playPromiseOpen = true
+            videoEl.play().then(() => { this.playPromiseOpen = false })
           }
         }
       ])
@@ -467,7 +471,8 @@ class UI {
         }
         dispatchEvent('UIUIContainerPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultUIContainerPlay', videoEl.currentTime)
-        videoEl.play()
+        this.playPromiseOpen = true
+        videoEl.play().then(() => { this.playPromiseOpen = false })
       } else {
         if (isTouchDevice()) {
           return
@@ -476,7 +481,7 @@ class UI {
         dispatchEvent('UIDefaultPause', videoEl.currentTime)
         dispatchEvent('UIUIContainerPause', videoEl.currentTime)
         dispatchEvent('UIDefaultUIContainerPause', videoEl.currentTime)
-        videoEl.pause()
+        if (this.playPromiseOpen === false) videoEl.pause()
       }
     })
 
@@ -494,13 +499,14 @@ class UI {
         }
         dispatchEvent('UIOverlayContainerPlay', videoEl.currentTime)
         dispatchEvent('UIDefaultOverlayContainerPlay', videoEl.currentTime)
-        videoEl.play()
+        this.playPromiseOpen = true
+        videoEl.play().then(() => { this.playPromiseOpen = false })
       } else {
         dispatchEvent('UIPause', videoEl.currentTime)
         dispatchEvent('UIDefaultPause', videoEl.currentTime)
         dispatchEvent('UIOverlayContainerPause', videoEl.currentTime)
         dispatchEvent('UIDefaultOverlayContainerPause', videoEl.currentTime)
-        videoEl.pause()
+        if (this.playPromiseOpen === false) videoEl.pause()
       }
     })
 
@@ -532,7 +538,8 @@ class UI {
             maxBufferSize: 0,
             maxBufferLength: 10,
             capLevelToPlayerSize: true,
-            autoStartLoad: true
+            autoStartLoad: true,
+            ignoreDevicePixelRatio: true
           })
           this.hls.loadSource(videoSource)
           this.hls.attachMedia(seekPreviewVideo)
@@ -676,9 +683,10 @@ class UI {
       const percentage = videoEl.currentTime / videoEl.duration * 100
       const bubblePosition = percentage / 100 * timelineContainer.offsetWidth
       this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.dataset.duration)
-
-      timelineElapsed.style.transform = `scaleX(${percentage}%)`
-      timelineElapsedBubble.style.transform = `translateX(${bubblePosition}px)`
+      if (draggingWhat !== 'timeline') {
+        timelineElapsed.style.transform = `scaleX(${percentage}%)`
+        timelineElapsedBubble.style.transform = `translateX(${bubblePosition}px)`
+      }
     }
     videoEl.addEventListener('timeupdate', this.onVideoElTimeupdate)
 
@@ -773,7 +781,6 @@ class UI {
         case timelineElapsedBubble:
           dispatchEvent('UISeekStart', videoEl.currentTime)
           dispatchEvent('UIDefaultSeekStart', videoEl.currentTime)
-          videoEl.pause()
           draggingWhat = 'timeline'
           break
         case volumeRange:
@@ -798,10 +805,13 @@ class UI {
       if (draggingWhat === 'timeline') {
         draggingWhat = ''
         updateTimelineWhileDragging(evt)
-        videoEl.currentTime = timelineElapsed.getAttribute('data-timeinseconds')
+        let currentTime = timelineElapsed.getAttribute('data-timeinseconds')
+        if (currentTime === null) currentTime = '0.0'
+        videoEl.currentTime = parseFloat(currentTime)
         dispatchEvent('UISeekEnd', videoEl.currentTime)
         dispatchEvent('UIDefaultSeekEnd', videoEl.currentTime)
-        videoEl.play()
+        this.playPromiseOpen = true
+        videoEl.play().then(() => { this.playPromiseOpen = false })
       }
       if (draggingWhat === 'volume') {
         draggingWhat = ''
