@@ -155,11 +155,13 @@ class UI {
     uiEl.firstChild.appendChild(text)
   }
 
-  init = (StroeerVideoplayer: IStroeerVideoplayer): void => {
+  init = (StroeerVideoplayer: IStroeerVideoplayer, options?: any): void => {
     Logger.log('version', version)
-
     const rootEl = StroeerVideoplayer.getRootEl()
     const videoEl = StroeerVideoplayer.getVideoEl()
+    if (typeof options?.livestream === 'boolean' && options?.livestream === true) {
+      rootEl.classList.add('livestreamUI')
+    }
 
     videoEl.muted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted')
     videoEl.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume')
